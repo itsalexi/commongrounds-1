@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block header %} Book List {% endblock %}
+{% block content %}
+<h2>Gnere List</h2>
+    <ul>
+        {% for genre in genres %}
+            <li><strong>{{ genre.name }}</strong> - {{ genre.description }}</li>
+        {% endfor %}
+    </ul>
+<h2>Book List</h2>
+    <ul>
+        {% for book in books %}
+            <li><a href = "{{ book.get_absolute_url }}">{{ book.title }} - {{ book.created_on|date:'Y-m-d' }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
