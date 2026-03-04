@@ -9,7 +9,7 @@ class EventType(models.Model):
     description = models.TextField()
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -27,7 +27,7 @@ class Event(models.Model):
         EventType, on_delete=models.SET_NULL, null=True)
 
     class Meta:
-        ordering = ["-created_on"]
+        ordering = ['-created_on']
 
     def __str__(self):
         return self.title
