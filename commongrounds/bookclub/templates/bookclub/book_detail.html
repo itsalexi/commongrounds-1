@@ -4,7 +4,7 @@
 {% block header %} <h3> Book {{ book.pk }} |  {{ book.genre }}</h3> {% endblock %}
 
 {% block content %}
-    <a href=" {% url bookclub:book_list' %} ">Back to List</a>
+    <a href=" {% url 'bookclub:book_list' %} ">Back to List</a>
     <h1>{{ book.title }} ({{ book.publication_year }})</h1>
     <h2>Created by: {{ book.author }} on {{ book.created_on|date:'Y-m-d' }}</h2>
     <p>Last updated on {{ book.updated_on|date:'Y-m-d' }}</p>
