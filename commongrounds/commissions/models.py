@@ -19,8 +19,13 @@ class Commission(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     
+    commission_type = models.ForeignKey(CommissionType, on_delete=models.SET_NULL, null=True, related_name="commissions")
+    
     def __str__(self):
         return self.title
     
+    def get_absolute_url(self):
+        return reverse('commission_detail', kwargs={'pk': self.pk})
+
     class Meta:
         ordering = ['created_on']
