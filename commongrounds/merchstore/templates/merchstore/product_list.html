@@ -1,1 +1,18 @@
 {% extends 'base.html' %}
+
+{% block content %}
+    <h2>Merch Store</h2>
+
+    {% for type in product_types %}
+        <h3>{{ type.name }}</h3>
+        <p>{{ type.description }}</p>
+
+        <ul>
+            {% for item in type.products.all %}
+                <li>
+                    <a href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock %}

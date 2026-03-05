@@ -6,11 +6,12 @@ from .models import Product, ProductType
 
 
 class ProductListView(ListView):
-    model = Product
-    template_name = 'product_list.html'
+    model = ProductType
+    context_object_name = 'product_types'
+    template_name = 'merchstore/product_list.html'
 
 
 class ProductDetailView(DetailView):
     model = Product
     context_object_name = 'item'
-    template_name = 'product_detail.html'
+    template_name = 'merchstore/product_detail.html'
