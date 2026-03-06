@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Event Detail</h2>
+<a href="{% url 'localevents:event_list' %}">Back to List</a>
+
+<h3>{{ event.title }} @ {{ event.location }}</h2>
+  <p>{{ event.description }}</p>
+  <p>Created on: {{ event.created_on }}</p>
+  <p>Last updated: {{ event.updated_on }}</p>
+
+  {% endblock %}

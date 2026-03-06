@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Local Events</h2>
+{% for event in events %}
+<div>
+  <a href="{{ event.get_absolute_url }}">
+    {{ event.title }}
+  </a>
+</div>
+{% endfor %}
+{% endblock %}
