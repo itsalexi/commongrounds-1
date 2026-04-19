@@ -16,17 +16,11 @@ class EventType(models.Model):
 
 
 class Event(models.Model):
-    STATUS_AVAILABLE = 'Available'
-    STATUS_FULL = 'Full'
-    STATUS_DONE = 'Done'
-    STATUS_CANCELLED = 'Cancelled'
-
-    STATUS_CHOICES = [
-        (STATUS_AVAILABLE, 'Available'),
-        (STATUS_FULL, 'Full'),
-        (STATUS_DONE, 'Done'),
-        (STATUS_CANCELLED, 'Cancelled'),
-    ]
+    class Status(models.TextChoices):
+        AVAILABLE = 'Available'
+        FULL = 'Full'
+        DONE = 'Done'
+        CANCELLED = 'Cancelled'
 
     title = models.CharField(max_length=255)
     category = models.ForeignKey(
@@ -37,9 +31,9 @@ class Event(models.Model):
     location = models.CharField(max_length=255)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    event_capacity = models.PositiveIntegerField(default=0)
+    event_capacity = models.PositiveIntegerField()
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default=STATUS_AVAILABLE)
+        max_length=20, choices=Status.choices, default=Status.AVAILABLE)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
