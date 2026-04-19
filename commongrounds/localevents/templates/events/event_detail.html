@@ -1,12 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<h2>Event Detail</h2>
 <a href="{% url 'localevents:event_list' %}">Back to List</a>
 
-<h3>{{ event.title }} @ {{ event.location }}</h2>
-  <p>{{ event.description }}</p>
-  <p>Created on: {{ event.created_on }}</p>
-  <p>Last updated: {{ event.updated_on }}</p>
+<h2>{{ event.title }}</h2>
+<p>{{ event.category }}</p>
+<p>{{ event.location }}</p>
+<p>{{ event.description }}</p>
+<p>{{ event.start_time }} - {{ event.end_time }}</p>
+<p>Status: {{ event.status }}</p>
+<p>Capacity: {{ signup_count }} / {{ event.event_capacity }}</p>
+<p>Created on: {{ event.created_on }}</p>
+<p>Last updated: {{ event.updated_on }}</p>
 
-  {% endblock %}
+{% if is_organizer %}
+  <a href="{% url 'localevents:event_update' event.pk %}">Edit Event</a>
+{% endif %}
+
+{% if not is_organizer and not already_signed_up %}
+  <a href="{% url 'localevents:event_signup' event.pk %}" {% if is_full %}style="pointer-events:none; opacity:0.5;"{% endif %}>
+    {% if is_full %}Sign Up (Full){% else %}Sign Up{% endif %}
+  </a>
+{% endif %}
+
+{% endblock %}
