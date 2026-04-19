@@ -45,7 +45,11 @@ INSTALLED_APPS = [
     'localevents',
     'bookclub',
     'commissions',
+    'tailwind',
+    'theme',
 ]
+
+TAILWIND_APP_NAME = 'theme'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
