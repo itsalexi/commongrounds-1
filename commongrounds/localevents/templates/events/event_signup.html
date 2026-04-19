@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<a href="{{ event.get_absolute_url }}">Back to Event</a>
+
+<h2>Sign Up for {{ event.title }}</h2>
+<p>{{ event.location }}</p>
+<p>{{ event.description }}</p>
+<p>{{ event.start_time }} - {{ event.end_time }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Sign Up</button>
+</form>
+
+{% endblock %}

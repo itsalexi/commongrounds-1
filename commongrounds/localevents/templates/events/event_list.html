@@ -2,11 +2,39 @@
 {% load static %}
 {% block content %}
 <h2>Local Events</h2>
-{% for event in events %}
+
+<a href="{% url 'localevents:event_create' %}">Create Event</a>
+
+{% if request.user.is_authenticated %}
+  {% if created_events %}
+    <h3>Events You Organized</h3>
+    {% for event in created_events %}
+    <div>
+      <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+      <span>{{ event.status }}</span>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if signed_up_events %}
+    <h3>Events You Signed Up For</h3>
+    {% for event in signed_up_events %}
+    <div>
+      <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+      <span>{{ event.status }}</span>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endif %}
+
+<h3>All Events</h3>
+{% for event in all_events %}
 <div>
-  <a href="{{ event.get_absolute_url }}">
-    {{ event.title }}
-  </a>
+  <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+  <span>{{ event.status }}</span>
 </div>
+{% empty %}
+<p>No events available.</p>
 {% endfor %}
+
 {% endblock %}
