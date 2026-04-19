@@ -45,7 +45,11 @@ INSTALLED_APPS = [
     'localevents',
     'bookclub',
     'commissions',
+    'accounts',
 ]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
