@@ -46,7 +46,11 @@ INSTALLED_APPS = [
     'bookclub',
     'commissions',
     'accounts',
+    'tailwind',
+    'theme',
 ]
+
+TAILWIND_APP_NAME = 'theme'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
