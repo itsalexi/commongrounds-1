@@ -18,9 +18,18 @@
 {% endif %}
 
 {% if not is_organizer and not already_signed_up %}
-  <a href="{% url 'localevents:event_signup' event.pk %}" {% if is_full %}style="pointer-events:none; opacity:0.5;"{% endif %}>
-    {% if is_full %}Sign Up (Full){% else %}Sign Up{% endif %}
-  </a>
+  {% if user.is_authenticated %}
+    <form method="post" action="{% url 'localevents:event_signup' event.pk %}">
+      {% csrf_token %}
+      <button type="submit" {% if is_full %}disabled{% endif %}>
+        {% if is_full %}Sign Up (Full){% else %}Sign Up{% endif %}
+      </button>
+    </form>
+  {% else %}
+    <a href="{% url 'localevents:event_signup' event.pk %}" {% if is_full %}style="pointer-events:none; opacity:0.5;"{% endif %}>
+      {% if is_full %}Sign Up (Full){% else %}Sign Up{% endif %}
+    </a>
+  {% endif %}
 {% endif %}
 
 {% endblock %}
