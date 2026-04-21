@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.views import View
 
 from accounts.decorators import role_required
 from .forms import EventForm, EventSignupForm
@@ -82,24 +84,71 @@ def event_update(request, pk):
     return render(request, 'events/event_update.html', {'form': form, 'event': event})
 
 
-def event_signup(request, pk):
-    event = get_object_or_404(Event, pk=pk)
+class BaseSignupView(View):
 
-    if request.user.is_authenticated:
-        profile = request.user.profile
-        if not EventSignup.objects.filter(event=event, user_registrant=profile).exists():
-            EventSignup.objects.create(event=event, user_registrant=profile)
-        return redirect('localevents:event_detail', pk=pk)
+    def get(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs['pk'])
+        return render(request, 'events/event_signup.html', {
+            'event': event,
+            'form': EventSignupForm(),
+        })
 
-    if request.method == 'POST':
-        form = EventSignupForm(request.POST)
-        if form.is_valid():
-            EventSignup.objects.create(
-                event=event,
-                new_registrant=form.cleaned_data['name'],
-            )
-            return redirect('localevents:event_detail', pk=pk)
-    else:
-        form = EventSignupForm()
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs['pk'])
 
-    return render(request, 'events/event_signup.html', {'event': event, 'form': form})
+        if not self.check_capacity(event):
+            return redirect(self.get_redirect_url(event))
+
+        if not self.check_ownership(event, request.user):
+            return redirect(self.get_redirect_url(event))
+
+        self.create_signup(event, request.user)
+        return redirect(self.get_redirect_url(event))
+
+    def check_capacity(self, event):
+        raise NotImplementedError
+
+    def check_ownership(self, event, user):
+        raise NotImplementedError
+
+    def create_signup(self, event, user):
+        raise NotImplementedError
+
+    def get_redirect_url(self, event):
+        raise NotImplementedError
+
+
+class EventSignupView(BaseSignupView):
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            event = get_object_or_404(Event, pk=kwargs['pk'])
+            form = EventSignupForm(request.POST)
+            if not form.is_valid():
+                return render(request, 'events/event_signup.html', {
+                    'event': event,
+                    'form': form,
+                })
+        return super().post(request, *args, **kwargs)
+
+    def check_capacity(self, event):
+        return event.signups.count() < event.event_capacity
+
+    def check_ownership(self, event, user):
+        if not user.is_authenticated:
+            return True
+        return not event.organizer.filter(pk=user.profile.pk).exists()
+
+    def create_signup(self, event, user):
+        if user.is_authenticated:
+            EventSignup.objects.get_or_create(event=event, user_registrant=user.profile)
+        else:
+            form = EventSignupForm(self.request.POST)
+            if form.is_valid():
+                EventSignup.objects.create(
+                    event=event,
+                    new_registrant=form.cleaned_data['name'],
+                )
+
+    def get_redirect_url(self, event):
+        return reverse('localevents:event_detail', args=[event.pk])
