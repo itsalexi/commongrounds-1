@@ -1,10 +1,35 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap");
 
-/**
-  * A catch-all path to Django template files, JavaScript, and Python files
-  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
-  *
-  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
-  * the scope of this path.
-  */
 @source "../../../**/*.{html,py,js}";
+
+@theme {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    Inter, system-ui, sans-serif;
+
+  --color-primary:           #99420d;
+  --color-primary-hover:     #b95925;
+  --color-on-primary:        #ffffff;
+
+  --color-surface:           #fff8f4;
+  --color-surface-low:       #fdf2e8;
+  --color-surface-mid:       #f7ece2;
+  --color-surface-high:      #ebe1d7;
+
+  --color-text:              #1f1b15;
+  --color-text-subtle:       #56433a;
+  --color-border:            #dcc1b5;
+  --color-outline:           #897268;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
