@@ -21,7 +21,7 @@ class CommissionListView(ListView):
         context = super().get_context_data(**kwargs)
         all_commissions = Commission.objects.all()
 
-        if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and hasattr(self.request.user, 'profile'):
             profile = self.request.user.profile
             my_commissions = all_commissions.filter(maker=profile)
             applied = all_commissions.filter(
@@ -68,6 +68,7 @@ class CommissionDetailView(DetailView):
         context['summary'] = CommissionService.get_commission_summary(commission)
         context['can_edit'] = (
             self.request.user.is_authenticated
+            and hasattr(self.request.user, 'profile')
             and self.request.user.profile == commission.maker
         )
         return context
