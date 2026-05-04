@@ -95,8 +95,10 @@ class CommissionCreateView(RoleRequiredMixin, CreateView):
         if not job_formset.is_valid():
             return self.form_invalid(form)
 
+        exclude_keys = {'DELETE', 'id', 'commission'}
         jobs_data = [
-            f.cleaned_data for f in job_formset
+            {k: v for k, v in f.cleaned_data.items() if k not in exclude_keys}
+            for f in job_formset
             if f.cleaned_data and not f.cleaned_data.get('DELETE')
         ]
 
