@@ -24,4 +24,8 @@ class EventForm(forms.ModelForm):
 
 
 class EventSignupForm(forms.Form):
-    name = forms.CharField(max_length=255, label='Your Name')
+    name = forms.CharField(
+        max_length=255,
+        label='Your Name',
+        widget=forms.TextInput(attrs={'placeholder': 'Your name'}),
+    )
