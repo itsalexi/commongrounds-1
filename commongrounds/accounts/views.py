@@ -9,7 +9,8 @@ from .models import Profile
 def register(request):
     form = UserCreationForm(request.POST or None)
     if form.is_valid():
-        form.save()
+        user = form.save()
+        Profile.objects.create(user=user, display_name=user.username, email='')
         return redirect('login')
     return render(request, 'accounts/register.html', {'form': form})
 
