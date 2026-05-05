@@ -13,4 +13,34 @@
   <p>{{ project.steps }}</p>
   <p>Created on: {{ project.created_on }}</p>
 
+{% if user.is_authenticated %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="action" value="favorite">Favorite</button>
+  </form>
+
+  <h3>Add a Review</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ review_form.as_p }}
+    <button type="submit" name="action" value="review">Submit Review</button>
+  </form>
+{% endif %}
+
+<h3>Reviews</h3>
+{% if reviews %}
+  <ul>
+    {% for review in reviews %}
+      <li>
+        <strong>{{ review.reviewer }}</strong>: {{ review.comment }}
+        {% if review.image %}
+          <br><img src="{{ review.image.url }}" alt="review image" style="max-width: 200px;">
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No reviews yet.</p>
+{% endif %}
+
 {% endblock %}
