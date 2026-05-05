@@ -14,7 +14,7 @@
       <a href="{% url 'diyprojects:project_list' %}"
         class="text-xs font-semibold uppercase tracking-widest text-text-subtle hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors pb-0.5">DIY
         Projects</a>
-      <a href="{% url 'commissions:requests_list' %}"
+      <a href="{% url 'commissions:list' %}"
         class="text-xs font-semibold uppercase tracking-widest text-text-subtle hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors pb-0.5">Gigs</a>
     </div>
 
@@ -55,7 +55,7 @@
       Club</a>
     <a href="{% url 'diyprojects:project_list' %}" class="nav-link text-sm font-medium text-text hover:text-primary">DIY
       Projects</a>
-    <a href="{% url 'commissions:requests_list' %}"
+    <a href="{% url 'commissions:list' %}"
       class="nav-link text-sm font-medium text-text hover:text-primary">Gigs</a>
     <div class="border-t border-border pt-4 flex gap-4">
       {% if user.is_authenticated %}
