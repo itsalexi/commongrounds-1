@@ -45,8 +45,12 @@ class Favorite(models.Model):
         TODO = 'To-Do'
         DONE = 'Done'
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE
+    )
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE
+    )
     date_favorited = models.DateField(auto_now_add=True)
     project_status = models.CharField(
         max_length=10,
@@ -56,8 +60,12 @@ class Favorite(models.Model):
 
 
 class ProjectReview(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    reviewer = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE
+    )
+    reviewer = models.ForeignKey(
+        Profile, on_delete=models.CASCADE
+    )
     comment = models.TextField()
     image = models.ImageField()
 
@@ -65,6 +73,10 @@ class ProjectReview(models.Model):
 class ProjectRating(models.Model):
     SCORE_CHOICES = [(i, str(i)) for i in range(1, 11)]
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE
+    )
+    profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE
+    )
     score = models.IntegerField(choices=SCORE_CHOICES, default=1)
