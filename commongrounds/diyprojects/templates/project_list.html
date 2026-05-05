@@ -3,15 +3,53 @@
 {% block content %}
 
 <h1>DIY Projects</h1>
-{% for project in projects %}
-<div>
+
+<a href="{% url 'diyprojects:project_create' %}">Create a new project</a>
+
+{% if created_projects %}
+  <h2>Projects created</h2>
   <ul>
+    {% for project in created_projects %}
       <li>
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.title }}
-        </a>
+        <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
+        <a href="{% url 'diyprojects:project_update' project.pk %}">Edit</a>
       </li>
-    </ul>
-</div>
-{% endfor %}
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if favorited_projects %}
+  <h2>Projects you favorited</h2>
+  <ul>
+    {% for project in favorited_projects %}
+      <li><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<h2>All Projects</h2>
+<ul>
+  {% for project in projects %}
+    <li>
+      <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
+      {% with reviews=project.projectreview_set.all %}
+        {% if reviews %}
+          <ul>
+            {% for review in reviews %}
+              <li>
+                <strong>{{ review.reviewer }}</strong>: {{ review.comment }}
+                {% if review.image %}
+                  <br>
+                  <img src="{{ review.image.url }}" alt="review image" style="max-width: 200px;">
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </li>
+  {% empty %}
+    <li>No projects yet.</li>
+  {% endfor %}
+</ul>
 {% endblock %}
