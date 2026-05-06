@@ -95,16 +95,21 @@
     .cg-preloader {
       display: none;
     }
-  .auth-form {
+  }
+
+  .auth-form,
+  .event-form {
     display: grid;
     gap: 1.25rem;
   }
 
-  .auth-form p {
+  .auth-form p,
+  .event-form p {
     margin: 0;
   }
 
-  .auth-form label {
+  .auth-form label,
+  .event-form label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--color-text);
@@ -112,7 +117,10 @@
     font-weight: 500;
   }
 
-  .auth-form input {
+  .auth-form input,
+  .event-form input,
+  .event-form select,
+  .event-form textarea {
     width: 100%;
     border: 1px solid var(--color-border);
     border-radius: 0.25rem;
@@ -123,11 +131,27 @@
     outline: none;
   }
 
-  .auth-form input:focus {
+  .event-form textarea {
+    min-height: 7rem;
+    line-height: 1.6;
+  }
+
+  .auth-form input:focus,
+  .event-form input:focus,
+  .event-form select:focus,
+  .event-form textarea:focus {
     border-color: var(--color-primary);
   }
 
-  .auth-form .errorlist {
+  .event-form .helptext {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+  }
+
+  .auth-form .errorlist,
+  .event-form .errorlist {
     margin: 0 0 0.5rem;
     padding: 0;
     list-style: none;

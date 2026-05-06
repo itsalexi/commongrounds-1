@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Events{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-5xl mx-auto">
+    <a href="{% url 'localevents:event_list' %}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to events</a>
+
+    <header class="mt-8 flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Organizer</p>
+        <h1 class="mt-2 font-display text-4xl font-bold text-text">Manage Events</h1>
+      </div>
+      <a href="{% url 'localevents:event_create' %}" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+        Create event
+      </a>
+    </header>
+
+    <section class="mt-6">
+      {% for event in events %}
+        <article class="grid gap-3 border-b border-border py-5 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p class="text-xs font-medium text-text-subtle">
+              {{ event.start_time|date:"M d, Y" }} · {{ event.status }}
+              {% if event.category %} · {{ event.category }}{% endif %}
+            </p>
+            <h2 class="mt-1 font-display text-2xl font-bold text-text">{{ event.title }}</h2>
+            <p class="mt-1 text-sm text-text-subtle">{{ event.location }} · {{ event.signups.count }}/{{ event.event_capacity }} spots</p>
+          </div>
+
+          <div class="flex gap-3 text-sm font-medium">
+            <a href="{{ event.get_absolute_url }}" class="text-text-subtle hover:text-text">View</a>
+            <a href="{% url 'localevents:event_update' event.pk %}" class="text-primary hover:text-primary-hover">Edit</a>
+          </div>
+        </article>
+      {% empty %}
+        <div class="rounded-lg border border-border bg-white p-8 text-center">
+          <h2 class="font-display text-2xl font-bold text-text">No events yet</h2>
+          <p class="mt-2 text-sm text-text-subtle">Create your first event when you are ready.</p>
+        </div>
+      {% endfor %}
+    </section>
+  </div>
+</main>
+{% endblock %}
