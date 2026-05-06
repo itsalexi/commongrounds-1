@@ -3,10 +3,16 @@
 {% block title %}Update Profile{% endblock %}
 
 {% block content %}
-<h1>Update Profile</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save</button>
-</form>
+<main class="min-h-screen bg-surface px-6 py-12">
+  <section class="max-w-sm mx-auto rounded-lg border border-border bg-white p-6">
+    <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Account</p>
+    <h1 class="mt-2 font-display text-3xl font-bold text-text">Update Profile</h1>
+
+    <form method="post" class="auth-form mt-6">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="w-full rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">Save</button>
+    </form>
+  </section>
+</main>
 {% endblock %}
