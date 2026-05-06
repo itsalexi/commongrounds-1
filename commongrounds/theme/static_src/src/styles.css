@@ -98,18 +98,21 @@
   }
 
   .auth-form,
-  .event-form {
+  .event-form,
+  .commission-form {
     display: grid;
     gap: 1.25rem;
   }
 
   .auth-form p,
-  .event-form p {
+  .event-form p,
+  .commission-form p {
     margin: 0;
   }
 
   .auth-form label,
-  .event-form label {
+  .event-form label,
+  .commission-form label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--color-text);
@@ -120,7 +123,10 @@
   .auth-form input,
   .event-form input,
   .event-form select,
-  .event-form textarea {
+  .event-form textarea,
+  .commission-form input:not([type="checkbox"]),
+  .commission-form select,
+  .commission-form textarea {
     width: 100%;
     border: 1px solid var(--color-border);
     border-radius: 0.25rem;
@@ -131,7 +137,8 @@
     outline: none;
   }
 
-  .event-form textarea {
+  .event-form textarea,
+  .commission-form textarea {
     min-height: 7rem;
     line-height: 1.6;
   }
@@ -139,11 +146,15 @@
   .auth-form input:focus,
   .event-form input:focus,
   .event-form select:focus,
-  .event-form textarea:focus {
+  .event-form textarea:focus,
+  .commission-form input:focus,
+  .commission-form select:focus,
+  .commission-form textarea:focus {
     border-color: var(--color-primary);
   }
 
-  .event-form .helptext {
+  .event-form .helptext,
+  .commission-form .helptext {
     display: block;
     margin-top: 0.5rem;
     color: var(--color-text-subtle);
@@ -151,7 +162,8 @@
   }
 
   .auth-form .errorlist,
-  .event-form .errorlist {
+  .event-form .errorlist,
+  .commission-form .errorlist {
     margin: 0 0 0.5rem;
     padding: 0;
     list-style: none;
