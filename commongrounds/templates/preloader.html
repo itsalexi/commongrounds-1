@@ -1,0 +1,17 @@
+<script>
+  if (sessionStorage.getItem("cgPreloaderSeen") === "true") {
+    document.documentElement.classList.add("cg-preloader-seen");
+  }
+</script>
+<div class="cg-preloader" role="status" aria-label="Loading">
+  <svg class="cg-preloader__logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 229 283" aria-hidden="true" focusable="false">
+    <path class="cg-preloader__path" d="M101 46C112 33 116 20 111 12C103 2 73 13 48 36C28 55 12 86 7 113C2 139 8 155 19 155C37 155 77 123 119 89C139 73 154 61 166 61C176 61 178 69 174 82C168 101 154 113 145 113C136 113 133 103 137 91C141 76 154 61 166 61C176 62 176 82 166 101C174 126 173 160 164 188C153 223 135 262 118 274C108 282 101 273 101 263C99 244 111 227 128 211C140 199 153 188 166 178C191 159 221 137 222 107" />
+  </svg>
+</div>
+<script>
+  document.querySelector(".cg-preloader")?.addEventListener("animationend", function (event) {
+    if (event.animationName !== "cg-preloader-hide") return;
+    sessionStorage.setItem("cgPreloaderSeen", "true");
+    document.documentElement.classList.add("cg-preloader-seen");
+  });
+</script>

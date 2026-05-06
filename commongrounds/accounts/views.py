@@ -8,8 +8,13 @@ from .models import Profile
 
 def register(request):
     form = UserCreationForm(request.POST or None)
+    form.fields['username'].help_text = ''
+    form.fields['password1'].help_text = ''
+    form.fields['password2'].help_text = ''
+    form.fields['password2'].label = 'Confirm password'
     if form.is_valid():
-        form.save()
+        user = form.save()
+        Profile.objects.create(user=user, display_name=user.username, email='')
         return redirect('login')
     return render(request, 'accounts/register.html', {'form': form})
 
