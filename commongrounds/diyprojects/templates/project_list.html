@@ -27,26 +27,20 @@
   </ul>
 {% endif %}
 
+{% if reviewed_projects %}
+  <h2>Projects you reviewed</h2>
+  <ul>
+    {% for project in reviewed_projects %}
+      <li><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 <h2>All Projects</h2>
 <ul>
   {% for project in projects %}
     <li>
       <a href="{{ project.get_absolute_url }}">{{ project.title }}</a>
-      {% with reviews=project.projectreview_set.all %}
-        {% if reviews %}
-          <ul>
-            {% for review in reviews %}
-              <li>
-                <strong>{{ review.reviewer }}</strong>: {{ review.comment }}
-                {% if review.image %}
-                  <br>
-                  <img src="{{ review.image.url }}" alt="review image" style="max-width: 200px;">
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
     </li>
   {% empty %}
     <li>No projects yet.</li>

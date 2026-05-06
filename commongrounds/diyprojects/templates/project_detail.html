@@ -4,19 +4,33 @@
 <h2>Project Detail</h2>
 <a href="{% url 'diyprojects:project_list' %}">Back to List</a>
 
-<h3>{{ project.title }}</h3> 
-  <h4> Category: {{ project.category.name }}</h4>
-  <p>{{ project.description }}</p>
-  <h3>Materials</h3>
-  <p>{{ project.materials }}</p>
-  <h3>Steps</h3>
-  <p>{{ project.steps }}</p>
-  <p>Created on: {{ project.created_on }}</p>
+<h3>{{ project.title }}</h3>
+<h4>Category: {{ project.category.name }}</h4>
+<p>{{ project.description }}</p>
+<h3>Materials</h3>
+<p>{{ project.materials }}</p>
+<h3>Steps</h3>
+<p>{{ project.steps }}</p>
+<p>Created on: {{ project.created_on }}</p>
+
+<p>Favorites: {{ favorite_count }}</p>
+<p>Average rating: {% if average_rating %}{{ average_rating|floatformat:2 }}{% else %}No ratings yet{% endif %}</p>
+
+{% if is_creator %}
+  <a href="{% url 'diyprojects:project_update' project.pk %}">Edit project</a>
+{% endif %}
 
 {% if user.is_authenticated %}
   <form method="post">
     {% csrf_token %}
     <button type="submit" name="action" value="favorite">Favorite</button>
+  </form>
+
+  <h3>Rate this project</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ rating_form.as_p }}
+    <button type="submit" name="action" value="rate">Submit Rating</button>
   </form>
 
   <h3>Add a Review</h3>
