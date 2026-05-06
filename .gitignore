@@ -5,3 +5,4 @@ commongrounds/media/
 .DS_Store
 __pycache__
 commongrounds/theme/static/css/dist/
+media/
