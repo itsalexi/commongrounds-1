@@ -98,6 +98,6 @@ class TransactionListview(ListView):
         ctx = super().get_context_data(**kwargs)
 
         ctx['sell_transactions'] = Transaction.objects.filter(
-            product__owner=profile).order_by('buyer')
+            product__owner=self.request.user.profile).order_by('buyer')
 
         return ctx
