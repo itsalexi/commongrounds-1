@@ -1,10 +1,173 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-/**
-  * A catch-all path to Django template files, JavaScript, and Python files
-  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
-  *
-  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
-  * the scope of this path.
-  */
 @source "../../../**/*.{html,py,js}";
+
+@theme {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    Inter, system-ui, sans-serif;
+
+  --color-primary:           #99420d;
+  --color-primary-hover:     #b95925;
+  --color-on-primary:        #ffffff;
+
+  --color-surface:           #fff8f4;
+  --color-surface-low:       #fdf2e8;
+  --color-surface-mid:       #f7ece2;
+  --color-surface-high:      #ebe1d7;
+
+  --color-charcoal:          #352f29;
+
+  --color-text:              #1f1b15;
+  --color-text-subtle:       #56433a;
+  --color-border:            #dcc1b5;
+  --color-outline:           #897268;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .cg-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    background: var(--color-surface);
+    animation: cg-preloader-hide 220ms ease 3.8s forwards;
+  }
+
+  .cg-preloader-seen .cg-preloader {
+    display: none;
+  }
+
+  .cg-preloader__logo {
+    width: min(12rem, calc(100vw - 4rem));
+    height: auto;
+    overflow: visible;
+  }
+
+  .cg-preloader__path {
+    --cg-logo-length: 1030.424;
+    fill: none;
+    stroke: var(--color-text);
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--cg-logo-length) var(--cg-logo-length);
+    stroke-dashoffset: var(--cg-logo-length);
+    animation: cg-logo-draw-return 3s cubic-bezier(0.65, 0, 0.35, 1) 500ms forwards;
+  }
+
+  @keyframes cg-logo-draw-return {
+    0% {
+      stroke-dashoffset: var(--cg-logo-length);
+    }
+
+    54%,
+    66% {
+      stroke-dashoffset: 0;
+    }
+
+    100% {
+      stroke-dashoffset: var(--cg-logo-length);
+    }
+  }
+
+  @keyframes cg-preloader-hide {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cg-preloader {
+      display: none;
+    }
+  }
+
+  .auth-form,
+  .event-form,
+  .commission-form {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .auth-form p,
+  .event-form p,
+  .commission-form p {
+    margin: 0;
+  }
+
+  .auth-form label,
+  .event-form label,
+  .commission-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .auth-form input,
+  .event-form input,
+  .event-form select,
+  .event-form textarea,
+  .commission-form input:not([type="checkbox"]),
+  .commission-form select,
+  .commission-form textarea {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    background: #fff;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    outline: none;
+  }
+
+  .event-form textarea,
+  .commission-form textarea {
+    min-height: 7rem;
+    line-height: 1.6;
+  }
+
+  .auth-form input:focus,
+  .event-form input:focus,
+  .event-form select:focus,
+  .event-form textarea:focus,
+  .commission-form input:focus,
+  .commission-form select:focus,
+  .commission-form textarea:focus {
+    border-color: var(--color-primary);
+  }
+
+  .event-form .helptext,
+  .commission-form .helptext {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+  }
+
+  .auth-form .errorlist,
+  .event-form .errorlist,
+  .commission-form .errorlist {
+    margin: 0 0 0.5rem;
+    padding: 0;
+    list-style: none;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+  }
+}

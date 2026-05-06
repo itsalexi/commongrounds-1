@@ -1,0 +1,29 @@
+{% load static %}
+
+<article class="overflow-hidden rounded-lg border border-border bg-white md:grid md:grid-cols-[160px_1fr]">
+  <a href="{{ event.get_absolute_url }}" class="block h-40 bg-surface-low md:h-full">
+    {% if event.event_image %}
+      <img src="{{ event.event_image.url }}" alt="{{ event.title }}" class="h-full w-full object-cover">
+    {% else %}
+      <img src="{% static 'img/workshop.jpg' %}" alt="{{ event.title }}" class="h-full w-full object-cover">
+    {% endif %}
+  </a>
+
+  <div class="p-5">
+    <p class="text-xs font-medium text-text-subtle">
+      {{ event.start_time|date:"M d" }} · {{ event.start_time|date:"g:i A" }}
+      {% if event.category %} · {{ event.category }}{% endif %}
+    </p>
+
+    <a href="{{ event.get_absolute_url }}" class="mt-2 block font-display text-2xl font-bold leading-snug text-text hover:text-primary">
+      {{ event.title }}
+    </a>
+
+    <p class="mt-2 text-sm leading-6 text-text-subtle">{{ event.description|truncatewords:18 }}</p>
+
+    <div class="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
+      <span class="text-text-subtle">{{ event.status }} · {{ event.signups.count }}/{{ event.event_capacity }} spots</span>
+      <a href="{{ event.get_absolute_url }}" class="font-medium text-primary hover:text-primary-hover">Details</a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit Commission{% else %}New Commission{% endif %}{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-2xl mx-auto">
+    <a href="{% url 'commissions:list' %}" class="inline-flex text-sm font-medium text-text-subtle transition hover:text-primary">&larr; Back to commissions</a>
+
+    <section class="mt-8 rounded-lg border border-border bg-white p-6 md:p-8">
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Commissions</p>
+      <h1 class="mt-2 font-display text-3xl font-bold text-text">
+        {% if object %}Edit Commission{% else %}New Commission{% endif %}
+      </h1>
+
+      <form method="post" class="commission-form mt-7">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          {{ form.non_field_errors }}
+        {% endif %}
+
+        <fieldset class="grid gap-5">
+          <legend class="font-display text-2xl font-bold text-text">Commission Details</legend>
+
+          {% for field in form %}
+            <div>
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+              {% endif %}
+              {% if field.errors %}
+                {{ field.errors }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </fieldset>
+
+        <fieldset class="grid gap-4 border-t border-border pt-6">
+          <legend class="font-display text-2xl font-bold text-text">Jobs</legend>
+
+          {{ job_formset.management_form }}
+          {% if job_formset.non_form_errors %}
+            {{ job_formset.non_form_errors }}
+          {% endif %}
+
+          {% for job_form in job_formset %}
+            <article class="rounded-lg border border-border bg-surface-low p-4">
+              {% for hidden in job_form.hidden_fields %}
+                {{ hidden }}
+              {% endfor %}
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                {% for field in job_form.visible_fields %}
+                  <div {% if field.name == 'role' %}class="sm:col-span-2"{% endif %}>
+                    {% if field.name == 'DELETE' %}
+                      <label class="inline-flex items-center gap-2">
+                        {{ field }}
+                        <span>{{ field.label }}</span>
+                      </label>
+                    {% else %}
+                      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                      <span class="helptext">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                      {{ field.errors }}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </article>
+          {% endfor %}
+        </fieldset>
+
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+          <button type="submit" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+            {% if object %}Save changes{% else %}Create commission{% endif %}
+          </button>
+          <a href="{% url 'commissions:list' %}" class="inline-flex justify-center rounded border border-border px-5 py-2.5 text-sm font-medium text-text-subtle transition hover:text-text">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+{% endblock %}
