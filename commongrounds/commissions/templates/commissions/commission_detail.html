@@ -1,71 +1,98 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ commission.title }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto p-6">
-  <a href="{% url 'commissions:list' %}" class="text-blue-600 hover:underline text-sm">← Back to Commissions</a>
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-3xl mx-auto">
+    <a href="{% url 'commissions:list' %}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to commissions</a>
 
-  <div class="mt-4 mb-6">
-    <div class="flex justify-between items-start">
-      <div>
-        <h1 class="text-2xl font-bold">{{ commission.title }}</h1>
-        <p class="text-gray-500 text-sm mt-1">
-          By {{ commission.maker }} · {{ commission.commission_type }} · {{ commission.get_status_display }}
-        </p>
+    {% if messages %}
+      <div class="mt-6 space-y-2">
+        {% for message in messages %}
+          <div class="rounded border px-4 py-3 text-sm {% if message.tags == 'error' %}border-red-600/20 bg-red-100 text-red-700{% else %}border-green-700/20 bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
       </div>
-      {% if can_edit %}
-      <a href="{% url 'commissions:update' commission.pk %}" class="bg-gray-100 px-4 py-2 rounded text-sm hover:bg-gray-200">
-        Edit
-      </a>
-      {% endif %}
-    </div>
-    <p class="mt-4">{{ commission.description }}</p>
-    <p class="text-sm text-gray-500 mt-2">People Required: {{ commission.num_of_people_required }}</p>
-  </div>
+    {% endif %}
 
-  <div class="bg-gray-50 rounded p-4 mb-6">
-    <h2 class="font-semibold mb-2">Manpower Summary</h2>
-    <p>Total manpower needed: <strong>{{ summary.total_manpower }}</strong></p>
-    <p>Open slots remaining: <strong>{{ summary.open_manpower }}</strong></p>
-  </div>
+    <article class="mt-10">
+      <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">
+            {{ commission.get_status_display }}
+            {% if commission.commission_type %} · {{ commission.commission_type }}{% endif %}
+          </p>
+          <h1 class="mt-3 font-display text-4xl md:text-5xl font-bold leading-tight text-text">{{ commission.title }}</h1>
+          <p class="mt-4 text-sm text-text-subtle">By {{ commission.maker }}</p>
+        </div>
 
-  <h2 class="text-xl font-semibold mb-3">Jobs</h2>
-  {% for item in jobs_with_data %}
-  <div class="border rounded p-4 mb-4">
-    <div class="flex justify-between items-center">
-      <div>
-        <h3 class="font-medium">{{ item.job.role }}</h3>
-        <p class="text-sm text-gray-500">
-          Manpower: {{ item.job.manpower_required }} · Accepted: {{ item.accepted_count }} · {{ item.job.get_status_display }}
-        </p>
+        {% if can_edit %}
+          <a href="{% url 'commissions:update' commission.pk %}" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+            Edit commission
+          </a>
+        {% endif %}
       </div>
 
-      {% if user.is_authenticated and not can_edit %}
-        <form method="post" action="{% url 'commissions:apply' item.job.pk %}">
-          {% csrf_token %}
-          <button
-            type="submit"
-            {% if item.is_full %}disabled{% endif %}
-            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Apply
-          </button>
-        </form>
-      {% endif %}
-    </div>
-  </div>
-  {% empty %}
-  <p class="text-gray-500">No jobs listed for this commission.</p>
-  {% endfor %}
+      <p class="mt-8 text-base leading-8 text-text-subtle">{{ commission.description }}</p>
 
-  {% if messages %}
-  <div class="mt-4">
-    {% for message in messages %}
-    <div class="p-3 rounded mb-2 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-      {{ message }}
-    </div>
-    {% endfor %}
+      <dl class="mt-8 grid gap-4 border-y border-border py-5 text-sm sm:grid-cols-3">
+        <div>
+          <dt class="text-text-subtle">People needed</dt>
+          <dd class="mt-1 font-medium text-text">{{ commission.num_of_people_required }}</dd>
+        </div>
+        <div>
+          <dt class="text-text-subtle">Total manpower</dt>
+          <dd class="mt-1 font-medium text-text">{{ summary.total_manpower }}</dd>
+        </div>
+        <div>
+          <dt class="text-text-subtle">Open slots</dt>
+          <dd class="mt-1 font-medium text-text">{{ summary.open_manpower }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <section class="mt-10">
+      <div class="mb-5 border-b border-border pb-4">
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Crew call</p>
+        <h2 class="mt-1 font-display text-3xl font-bold text-text">Jobs</h2>
+      </div>
+
+      <div class="space-y-4">
+        {% for item in jobs_with_data %}
+          <article class="rounded-lg border border-border bg-white p-5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-xs font-medium text-text-subtle">{{ item.job.get_status_display }}</p>
+                <h3 class="mt-1 font-display text-2xl font-bold leading-snug text-text">{{ item.job.role }}</h3>
+                <p class="mt-2 text-sm text-text-subtle">
+                  {{ item.accepted_count }} accepted · {{ item.job.manpower_required }} needed
+                </p>
+              </div>
+
+              {% if user.is_authenticated and not can_edit %}
+                <form method="post" action="{% url 'commissions:apply' item.job.pk %}">
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    {% if item.is_full %}disabled{% endif %}
+                    class="inline-flex w-full justify-center rounded px-5 py-2.5 text-sm font-medium {% if item.is_full %}cursor-not-allowed bg-surface-high text-text-subtle{% else %}bg-primary text-on-primary hover:bg-primary-hover{% endif %}"
+                  >
+                    {% if item.is_full %}Role full{% else %}Apply{% endif %}
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </article>
+        {% empty %}
+          <div class="rounded-lg border border-border bg-white p-8 text-center">
+            <h2 class="font-display text-2xl font-bold text-text">No jobs listed</h2>
+            <p class="mt-2 text-sm text-text-subtle">This commission does not have open roles yet.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
   </div>
-  {% endif %}
-</div>
+</main>
 {% endblock %}
