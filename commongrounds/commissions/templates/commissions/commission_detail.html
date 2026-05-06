@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{{ commission.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+  <a href="{% url 'commissions:list' %}" class="text-blue-600 hover:underline text-sm">← Back to Commissions</a>
+
+  <div class="mt-4 mb-6">
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-bold">{{ commission.title }}</h1>
+        <p class="text-gray-500 text-sm mt-1">
+          By {{ commission.maker }} · {{ commission.commission_type }} · {{ commission.get_status_display }}
+        </p>
+      </div>
+      {% if can_edit %}
+      <a href="{% url 'commissions:update' commission.pk %}" class="bg-gray-100 px-4 py-2 rounded text-sm hover:bg-gray-200">
+        Edit
+      </a>
+      {% endif %}
+    </div>
+    <p class="mt-4">{{ commission.description }}</p>
+    <p class="text-sm text-gray-500 mt-2">People Required: {{ commission.num_of_people_required }}</p>
+  </div>
+
+  <div class="bg-gray-50 rounded p-4 mb-6">
+    <h2 class="font-semibold mb-2">Manpower Summary</h2>
+    <p>Total manpower needed: <strong>{{ summary.total_manpower }}</strong></p>
+    <p>Open slots remaining: <strong>{{ summary.open_manpower }}</strong></p>
+  </div>
+
+  <h2 class="text-xl font-semibold mb-3">Jobs</h2>
+  {% for item in jobs_with_data %}
+  <div class="border rounded p-4 mb-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="font-medium">{{ item.job.role }}</h3>
+        <p class="text-sm text-gray-500">
+          Manpower: {{ item.job.manpower_required }} · Accepted: {{ item.accepted_count }} · {{ item.job.get_status_display }}
+        </p>
+      </div>
+
+      {% if user.is_authenticated and not can_edit %}
+        <form method="post" action="{% url 'commissions:apply' item.job.pk %}">
+          {% csrf_token %}
+          <button
+            type="submit"
+            {% if item.is_full %}disabled{% endif %}
+            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Apply
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-gray-500">No jobs listed for this commission.</p>
+  {% endfor %}
+
+  {% if messages %}
+  <div class="mt-4">
+    {% for message in messages %}
+    <div class="p-3 rounded mb-2 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
