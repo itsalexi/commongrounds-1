@@ -1,7 +1,0 @@
-{% extends 'base.html' %} {% block content %}
-<h2>Commission Requests List</h2>
-{% for request in requests %}
-<div style="margin-bottom: 30px">
-  <h3><a href="{{ request.get_absolute_url }}"> {{ request.title }} </a></h3>
-</div>
-{% endfor %} {% endblock %}
