@@ -20,12 +20,7 @@ class BookReviewForm(forms.ModelForm):
 
     def __init__(self, *args, user_profile=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if user_profile:
-            self.user_profile = user_profile
-            self.fields['title'].widget.attrs['readonly'] = True
-            self.fields['comment'].widget.attrs['readonly'] = True
-        else:
-            self.user_profile = None
+        self.user_profile = user_profile
 
 
 class BookForm(forms.ModelForm):
@@ -138,41 +133,27 @@ class BookFormFactory:
     """Factory class for creating appropriate form instances based on context."""
 
     @classmethod
-    def get_form(cls, context, user_profile=None, instance=None):
-        """
-        Return a form class based on the context.
-
-        Args:
-            context (str): One of 'review', 'contribute', or 'update'
-            user_profile: The logged-in user's profile (for pre-population)
-            instance: The Book instance (for update forms)
-
-        Returns:
-            A form class (not instance) configured for the given context
-        """
+    def get_form(cls, context, data=None, user_profile=None, instance=None):
         if context == 'review':
-            return cls._create_review_form(user_profile, instance)
+            return cls._create_review_form(data, user_profile, instance)
         elif context == 'contribute':
-            return cls._create_contribute_form(user_profile, instance)
+            return cls._create_contribute_form(data, user_profile, instance)
         elif context == 'update':
-            return cls._create_update_form(user_profile, instance)
+            return cls._create_update_form(data, user_profile, instance)
         else:
             raise ValueError(f"Invalid context: {context}")
 
     @classmethod
-    def _create_review_form(cls, user_profile=None, instance=None):
-        """Create a BookReviewForm with reviewer pre-set and read-only."""
-        return BookReviewForm(instance=instance, user_profile=user_profile)
+    def _create_review_form(cls, data=None, user_profile=None, instance=None):
+        return BookReviewForm(data=data, instance=instance, user_profile=user_profile)
 
     @classmethod
-    def _create_contribute_form(cls, user_profile=None, instance=None):
-        """Create a BookContributeForm with contributor pre-set."""
-        return BookContributeForm(instance=instance, user_profile=user_profile)
+    def _create_contribute_form(cls, data=None, user_profile=None, instance=None):
+        return BookContributeForm(data=data, instance=instance, user_profile=user_profile)
 
     @classmethod
-    def _create_update_form(cls, user_profile=None, instance=None):
-        """Create a BookUpdateForm (excludes contributor field)."""
-        return BookUpdateForm(instance=instance, user_profile=user_profile)
+    def _create_update_form(cls, data=None, user_profile=None, instance=None):
+        return BookUpdateForm(data=data, instance=instance, user_profile=user_profile)
 
 
 class BorrowForm(forms.ModelForm):
