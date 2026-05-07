@@ -2,7 +2,7 @@ from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .models import Product, Profile, Transaction
+from .models import Product, Profile, ProductType, Transaction
 from .forms import TransactionForm, ProductForm
 from .strategies import AuthenticatedPurchaseStrategy, GuestPurchaseStrategy
 
@@ -13,12 +13,24 @@ class ProductListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        selected_type_id = self.request.GET.get('type')
+        if selected_type_id and not selected_type_id.isdecimal():
+            selected_type_id = None
 
-        if self.request.user.is_authenticated:
+        products = Product.objects.select_related('owner', 'product_type')
+        if selected_type_id:
+            products = products.filter(product_type_id=selected_type_id)
+
+        ctx['product_types'] = ProductType.objects.all()
+        ctx['selected_type_id'] = selected_type_id
+
+        if self.request.user.is_authenticated and hasattr(self.request.user, 'profile'):
             ctx['user_products'] = Product.objects.filter(
                 owner=self.request.user.profile)
-            ctx['all_products'] = Product.objects.exclude(
+            ctx['all_products'] = products.exclude(
                 owner=self.request.user.profile)
+        else:
+            ctx['all_products'] = products
 
         return ctx
 
@@ -26,6 +38,7 @@ class ProductListView(ListView):
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'merchstore/product_detail.html'
+    context_object_name = 'product'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
