@@ -1,18 +1,126 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Merch Store{% endblock %}
 
 {% block content %}
-    <h2>Merch Store</h2>
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-5xl mx-auto space-y-9">
+    <section class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle mb-2">Curated goods</p>
+        <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight text-text">Merch Store</h1>
+        <p class="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-text-subtle">
+          Browse handmade goods, small-batch merch, and community staples from Common Grounds sellers.
+        </p>
+      </div>
 
-    {% for type in product_types %}
-        <h3>{{ type.name }}</h3>
-        <p>{{ type.description }}</p>
+      {% if request.user.is_authenticated and request.user.profile.role == 'Market Seller' %}
+        <a href="{% url 'merchstore:product_create' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+          New product
+        </a>
+      {% endif %}
+    </section>
 
-        <ul>
-            {% for item in type.products.all %}
-                <li>
-                    <a href="{{ item.get_absolute_url }}">{{ item.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
+    {% if product_types %}
+      <nav class="flex flex-wrap gap-2" aria-label="Product categories">
+        <a href="{% url 'merchstore:product_list' %}" class="rounded-full border px-4 py-2 text-sm font-medium transition {% if not selected_type_id %}border-primary bg-primary text-on-primary{% else %}border-border bg-white text-text-subtle hover:text-text{% endif %}">
+          All
+        </a>
+        {% for type in product_types %}
+          <a href="{% url 'merchstore:product_list' %}?type={{ type.pk }}" class="rounded-full border px-4 py-2 text-sm font-medium transition {% if selected_type_id == type.pk|stringformat:'s' %}border-primary bg-primary text-on-primary{% else %}border-border bg-white text-text-subtle hover:text-text{% endif %}">
+            {{ type.name }}
+          </a>
+        {% endfor %}
+      </nav>
+    {% endif %}
+
+    {% if user.is_authenticated and user_products %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Seller shelf</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">My Products</h2>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          {% for product in user_products %}
+            <article class="overflow-hidden rounded-lg border border-border bg-white md:grid md:grid-cols-[160px_1fr]">
+              <a href="{{ product.get_absolute_url }}" class="block h-40 bg-surface-low md:h-full">
+                {% if product.product_image %}
+                  <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover">
+                {% else %}
+                  <img src="{% static 'img/shop.jpeg' %}" alt="{{ product.name }}" class="h-full w-full object-cover">
+                {% endif %}
+              </a>
+
+              <div class="p-5">
+                <p class="text-xs font-medium text-text-subtle">
+                  {{ product.get_status_display }}
+                  {% if product.product_type %} · {{ product.product_type }}{% endif %}
+                </p>
+                <a href="{{ product.get_absolute_url }}" class="mt-2 block font-display text-2xl font-bold leading-snug text-text hover:text-primary">
+                  {{ product.name }}
+                </a>
+                <p class="mt-2 text-sm leading-6 text-text-subtle">{{ product.description|truncatewords:18 }}</p>
+                <div class="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
+                  <span class="text-text-subtle">${{ product.price }} · {{ product.stock }} in stock</span>
+                  <a href="{{ product.get_absolute_url }}" class="font-medium text-primary hover:text-primary-hover">Details</a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section>
+      <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Shop</p>
+          <h2 class="mt-1 font-display text-3xl font-bold text-text">Available Products</h2>
+        </div>
+        {% if selected_type_id %}
+          <a href="{% url 'merchstore:product_list' %}" class="text-sm font-medium text-primary hover:text-primary-hover">Clear filter</a>
+        {% endif %}
+      </div>
+
+      <div class="space-y-4">
+        {% for product in all_products %}
+          <article class="overflow-hidden rounded-lg border border-border bg-white md:grid md:grid-cols-[160px_1fr]">
+            <a href="{{ product.get_absolute_url }}" class="block h-40 bg-surface-low md:h-full">
+              {% if product.product_image %}
+                <img src="{{ product.product_image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover">
+              {% else %}
+                <img src="{% static 'img/shop.jpeg' %}" alt="{{ product.name }}" class="h-full w-full object-cover">
+              {% endif %}
+            </a>
+
+            <div class="p-5">
+              <p class="text-xs font-medium text-text-subtle">
+                {{ product.get_status_display }}
+                {% if product.product_type %} · {{ product.product_type }}{% endif %}
+                {% if product.owner %} · By {{ product.owner }}{% endif %}
+              </p>
+              <a href="{{ product.get_absolute_url }}" class="mt-2 block font-display text-2xl font-bold leading-snug text-text hover:text-primary">
+                {{ product.name }}
+              </a>
+              <p class="mt-2 text-sm leading-6 text-text-subtle">{{ product.description|truncatewords:18 }}</p>
+              <div class="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
+                <span class="text-text-subtle">${{ product.price }} · {{ product.stock }} in stock</span>
+                <a href="{{ product.get_absolute_url }}" class="font-medium text-primary hover:text-primary-hover">Details</a>
+              </div>
+            </div>
+          </article>
+        {% empty %}
+          <div class="rounded-lg bg-surface-low p-10 text-center">
+            <h2 class="font-display text-2xl font-bold text-text">No products found</h2>
+            <p class="mt-2 text-sm text-text-subtle">Try another category or check back for new goods.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
 {% endblock %}
