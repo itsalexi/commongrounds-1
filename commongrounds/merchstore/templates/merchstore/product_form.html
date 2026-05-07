@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit Product{% else %}New Product{% endif %}{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-2xl mx-auto">
+    <a href="{% url 'merchstore:product_list' %}" class="inline-flex text-sm font-medium text-text-subtle transition hover:text-primary">&larr; Back to shop</a>
+
+    <section class="mt-8 rounded-lg border border-border bg-white p-6 md:p-8">
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Merch Store</p>
+      <h1 class="mt-2 font-display text-3xl font-bold text-text">
+        {% if object %}Edit Product{% else %}New Product{% endif %}
+      </h1>
+
+      <form method="post" enctype="multipart/form-data" class="product-form mt-7">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+          <button type="submit" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+            {% if object %}Save changes{% else %}Create product{% endif %}
+          </button>
+          <a href="{% url 'merchstore:product_list' %}" class="inline-flex justify-center rounded border border-border px-5 py-2.5 text-sm font-medium text-text-subtle transition hover:text-text">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
+{% endblock %}

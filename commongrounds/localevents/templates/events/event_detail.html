@@ -1,12 +1,73 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
 {% block content %}
-<h2>Event Detail</h2>
-<a href="{% url 'localevents:event_list' %}">Back to List</a>
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-3xl mx-auto">
+    <a href="{% url 'localevents:event_list' %}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to events</a>
 
-<h3>{{ event.title }} @ {{ event.location }}</h2>
-  <p>{{ event.description }}</p>
-  <p>Created on: {{ event.created_on }}</p>
-  <p>Last updated: {{ event.updated_on }}</p>
+    <div class="mt-10">
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">
+        {{ event.status }}
+        {% if event.category %} · {{ event.category }}{% endif %}
+      </p>
 
-  {% endblock %}
+      <h1 class="mt-3 font-display text-4xl md:text-5xl font-bold leading-tight text-text">{{ event.title }}</h1>
+
+      <p class="mt-4 text-sm text-text-subtle">
+        {{ event.start_time|date:"M d, Y" }} · {{ event.start_time|date:"g:i A" }} at {{ event.location }}
+      </p>
+
+      {% if event.event_image %}
+        <img src="{{ event.event_image.url }}" alt="{{ event.title }}" class="mt-8 h-80 w-full rounded-lg object-cover">
+      {% else %}
+        <img src="{% static 'img/workshop.jpg' %}" alt="{{ event.title }}" class="mt-8 h-80 w-full rounded-lg object-cover">
+      {% endif %}
+
+      <p class="mt-8 text-base leading-8 text-text-subtle">{{ event.description }}</p>
+
+      <dl class="mt-8 grid gap-4 border-y border-border py-5 text-sm sm:grid-cols-3">
+        <div>
+          <dt class="text-text-subtle">When</dt>
+          <dd class="mt-1 font-medium text-text">{{ event.start_time|date:"M d, Y" }} · {{ event.start_time|date:"g:i A" }}</dd>
+        </div>
+        <div>
+          <dt class="text-text-subtle">Where</dt>
+          <dd class="mt-1 font-medium text-text">{{ event.location }}</dd>
+        </div>
+        <div>
+          <dt class="text-text-subtle">Spots</dt>
+          <dd class="mt-1 font-medium text-text">{{ signup_count }} / {{ event.event_capacity }}</dd>
+        </div>
+      </dl>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        {% if is_organizer %}
+          <a href="{% url 'localevents:event_update' event.pk %}" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+            Edit event
+          </a>
+        {% endif %}
+
+        {% if not is_organizer and not already_signed_up %}
+          {% if user.is_authenticated %}
+            <form method="post" action="{% url 'localevents:event_signup' event.pk %}">
+              {% csrf_token %}
+              <button type="submit" {% if is_full %}disabled{% endif %} class="inline-flex w-full justify-center rounded px-5 py-2.5 text-sm font-medium {% if is_full %}cursor-not-allowed bg-surface-high text-text-subtle{% else %}bg-primary text-on-primary hover:bg-primary-hover{% endif %}">
+                {% if is_full %}Event full{% else %}Join this event{% endif %}
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'localevents:event_signup' event.pk %}" class="inline-flex justify-center rounded px-5 py-2.5 text-sm font-medium {% if is_full %}pointer-events-none bg-surface-high text-text-subtle{% else %}bg-primary text-on-primary hover:bg-primary-hover{% endif %}">
+              {% if is_full %}Event full{% else %}Join this event{% endif %}
+            </a>
+          {% endif %}
+        {% elif already_signed_up %}
+          <span class="inline-flex justify-center rounded border border-border px-5 py-2.5 text-sm font-medium text-text-subtle">You're signed up</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

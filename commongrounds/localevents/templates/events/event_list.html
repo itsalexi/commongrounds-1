@@ -1,12 +1,87 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% block title %}Local Events{% endblock %}
+
 {% block content %}
-<h2>Local Events</h2>
-{% for event in events %}
-<div>
-  <a href="{{ event.get_absolute_url }}">
-    {{ event.title }}
-  </a>
-</div>
-{% endfor %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-5xl mx-auto space-y-9">
+    <section class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle mb-2">What's on</p>
+        <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight text-text">Local Events</h1>
+        <p class="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-text-subtle">
+          Discover workshops, swaps, talks, and community gatherings around Common Grounds.
+        </p>
+      </div>
+
+      {% if can_create_event %}
+        <a href="{% url 'localevents:event_create' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+          Create event
+        </a>
+      {% endif %}
+    </section>
+
+    {% if user.is_authenticated %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Organizer</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Events Created</h2>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          {% for event in created_events %}
+            {% include 'events/_event_card.html' %}
+          {% empty %}
+            <div class="rounded-lg bg-surface-low p-8 text-center">
+              <h2 class="font-display text-2xl font-bold text-text">No events created</h2>
+              <p class="mt-2 text-sm text-text-subtle">Events you organize will appear here.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Registrations</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Events Signed Up</h2>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          {% for event in signed_up_events %}
+            {% include 'events/_event_card.html' %}
+          {% empty %}
+            <div class="rounded-lg bg-surface-low p-8 text-center">
+              <h2 class="font-display text-2xl font-bold text-text">No event signups</h2>
+              <p class="mt-2 text-sm text-text-subtle">Events you join will appear here.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section>
+      <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Community calendar</p>
+          <h2 class="mt-1 font-display text-3xl font-bold text-text">All Events</h2>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        {% for event in all_events %}
+          {% include 'events/_event_card.html' %}
+        {% empty %}
+          <div class="rounded-lg bg-surface-low p-10 text-center lg:col-span-2">
+            <h2 class="font-display text-2xl font-bold text-text">No events found</h2>
+            <p class="mt-2 text-sm text-text-subtle">Check back for new gatherings.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
 {% endblock %}

@@ -1,17 +1,117 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
 
-<h1>DIY Projects</h1>
-{% for project in projects %}
-<div>
-  <ul>
-      <li>
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.title }}
-        </a>
-      </li>
-    </ul>
-</div>
-{% endfor %}
+{% block title %}DIY Projects{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-5xl mx-auto space-y-9">
+    <section class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle mb-2">Make it yourself</p>
+        <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight text-text">DIY Projects</h1>
+        <p class="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-text-subtle">
+          Browse community-made guides, share your own builds, and collect favorites for later.
+        </p>
+      </div>
+
+      {% if can_create_project %}
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a href="{% url 'diyprojects:project_create' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+            Create a new project
+          </a>
+        </div>
+      {% endif %}
+    </section>
+
+    {% if created_projects %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Your work</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Projects you created</h2>
+          </div>
+        </div>
+        <div class="space-y-4">
+          {% for project in created_projects %}
+            <article class="rounded-lg border border-border bg-white p-5 flex items-center justify-between gap-4">
+              <a href="{{ project.get_absolute_url }}" class="font-display text-xl font-bold text-text hover:text-primary">{{ project.title }}</a>
+              <a href="{% url 'diyprojects:project_update' project.pk %}" class="text-sm font-medium text-primary hover:text-primary-hover">Edit</a>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if has_favorites %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Saved</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Your favorites</h2>
+          </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          {% for label, bucket in favorite_buckets %}
+            <div>
+              <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-text-subtle">{{ label }} · {{ bucket|length }}</p>
+              <div class="space-y-3">
+                {% for favorite in bucket %}
+                  <article class="rounded-lg border border-border bg-white p-4">
+                    <a href="{{ favorite.project.get_absolute_url }}" class="font-display text-base font-bold text-text hover:text-primary">{{ favorite.project.title }}</a>
+                  </article>
+                {% empty %}
+                  <p class="text-xs text-text-subtle italic">Nothing here yet.</p>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if reviewed_projects %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Your reviews</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Projects you reviewed</h2>
+          </div>
+        </div>
+        <div class="space-y-4">
+          {% for project in reviewed_projects %}
+            <article class="rounded-lg border border-border bg-white p-5">
+              <a href="{{ project.get_absolute_url }}" class="font-display text-xl font-bold text-text hover:text-primary">{{ project.title }}</a>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section>
+      <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Browse</p>
+          <h2 class="mt-1 font-display text-3xl font-bold text-text">All Projects</h2>
+        </div>
+      </div>
+      <div class="space-y-4">
+        {% for project in projects %}
+          <article class="rounded-lg border border-border bg-white p-5">
+            <a href="{{ project.get_absolute_url }}" class="font-display text-xl font-bold text-text hover:text-primary">{{ project.title }}</a>
+            {% if project.category %}
+              <p class="mt-1 text-xs font-medium text-text-subtle">{{ project.category.name }}</p>
+            {% endif %}
+          </article>
+        {% empty %}
+          <div class="rounded-lg bg-surface-low p-10 text-center">
+            <h2 class="font-display text-2xl font-bold text-text">No projects yet</h2>
+            <p class="mt-2 text-sm text-text-subtle">Be the first to share a build with the community.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
 {% endblock %}

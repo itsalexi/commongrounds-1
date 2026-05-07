@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Borrow {{ book.title }} | Book Club{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-3xl mx-auto">
+    <a href="{{ book.get_absolute_url }}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to Book Details</a>
+
+    <div class="mt-10">
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Borrow request</p>
+      <h1 class="mt-2 font-display text-3xl font-bold text-text">Borrow {{ book.title }}</h1>
+      <p class="mt-2 text-sm text-text-subtle">
+        Fill in the borrow date below. You must return the book latest two weeks later.
+      </p>
+    </div>
+
+    <section class="mt-8 rounded-lg border border-border bg-white p-6">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Book</p>
+          <p class="mt-2 font-display text-2xl font-bold text-text">{{ book.title }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Author</p>
+          <p class="mt-2 text-base text-text">{{ book.author }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Publication year</p>
+          <p class="mt-2 text-base text-text">{{ book.publication_year }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Availability</p>
+          <p class="mt-2 text-base font-medium {% if book.available_to_borrow %}text-green-600{% else %}text-red-600{% endif %}">
+            {% if book.available_to_borrow %}Available to borrow{% else %}Unavailable{% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% if book.synopsis %}
+        <div class="mt-6 border-t border-border pt-5">
+          <p class="mt-2 text-sm font-semibold text-text-subtle">Synopsis</p>
+          <p class="mt-2 leading-7 text-text">{{ book.synopsis }}</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <form method="post" class="mt-8 rounded-lg border border-border bg-white p-6">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-text mb-2">Your name</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <div class="mt-2 text-sm text-red-600">{{ form.name.errors }}</div>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <p class="mt-2 text-xs text-text-subtle">Signed in as <strong>{{ user_profile.display_name }}</strong>.</p>
+        {% else %}
+          <p class="mt-2 text-xs text-text-subtle">Enter the name that should be attached to this borrow request.</p>
+        {% endif %}
+      </div>
+
+      <div class="mb-4">
+        <label for="{{ form.date_borrowed.id_for_label }}" class="block text-sm font-medium text-text mb-2">Borrow date</label>
+        {{ form.date_borrowed }}
+        {% if form.date_borrowed.errors %}
+          <div class="mt-2 text-sm text-red-600">{{ form.date_borrowed.errors }}</div>
+        {% endif %}
+        <p class="mt-2 text-xs text-text-subtle">The return date will always be calculated as 14 days after this date.</p>
+      </div>
+
+      <div class="rounded border border-dashed border-border bg-surface-high p-4 text-sm text-text-subtle">
+        The return date is not entered manually. It is saved automatically as two weeks after the borrow date.
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button type="submit" class="inline-flex justify-center rounded bg-primary px-6 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+          Borrow Book
+        </button>
+        <a href="{{ book.get_absolute_url }}" class="inline-flex justify-center rounded bg-surface-high px-6 py-2.5 text-sm font-medium text-text hover:bg-surface-higher">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}
