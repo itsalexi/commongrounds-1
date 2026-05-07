@@ -22,6 +22,7 @@ from .views import landing
 
 urlpatterns = [
     path('', landing, name='landing'),
+    path('ask/', include('askagent.urls', namespace='askagent')),
     path('admin/', admin.site.urls),
     path('bookclub/', include('bookclub.urls', namespace='bookclub')),
     path('merchstore/', include('merchstore.urls', namespace='merchstore')),

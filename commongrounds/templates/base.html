@@ -16,6 +16,9 @@
   <main id="content">
     {% block content %} {% endblock %}
   </main>
+  {% if request.resolver_match.app_name != "askagent" %}
+    {% include "askagent/widget.html" %}
+  {% endif %}
   {% block scripts %} {% endblock %}
 </body>
 

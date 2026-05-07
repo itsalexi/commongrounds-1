@@ -1,0 +1,372 @@
+<div id="groundie-widget" class="fixed bottom-4 right-4 z-40 sm:bottom-5 sm:right-5">
+  <section
+    id="groundie-panel"
+    class="hidden w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-lg border border-border bg-white shadow-[0_18px_48px_-28px_rgba(20,20,20,0.45)] sm:w-96"
+    aria-label="Groundie chat"
+  >
+    <header class="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <div class="min-w-0">
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Common Grounds</p>
+        <h2 class="truncate font-display text-lg font-bold text-text">Groundie</h2>
+      </div>
+      <button
+        type="button"
+        id="groundie-close"
+        class="rounded border border-border px-2 py-1 text-xs font-semibold uppercase tracking-widest text-text-subtle transition hover:border-primary hover:text-primary active:translate-y-px"
+        aria-label="Close Groundie"
+      >
+        Close
+      </button>
+    </header>
+
+    <div
+      id="groundie-messages"
+      class="h-[min(28rem,calc(100dvh-13rem))] space-y-3 overflow-y-auto bg-surface px-4 py-4"
+      data-empty="true"
+    >
+      <article class="rounded-lg border border-dashed border-border bg-white px-3 py-3">
+        <p class="text-sm font-medium text-text">Ask me about Common Grounds.</p>
+        <p class="mt-1 text-xs leading-5 text-text-subtle">I can check products, events, books, projects, gigs, and your cart.</p>
+      </article>
+    </div>
+
+    <form id="groundie-form" class="border-t border-border bg-white p-3">
+      {% csrf_token %}
+      <label for="groundie-question" class="sr-only">Message Groundie</label>
+      <div class="flex items-end gap-2">
+        <textarea
+          id="groundie-question"
+          rows="1"
+          required
+          class="max-h-24 min-h-10 flex-1 resize-none rounded border border-border bg-white px-3 py-2 text-sm leading-5 text-text placeholder-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          placeholder="Message Groundie"
+        ></textarea>
+        <button
+          id="groundie-send"
+          type="submit"
+          class="inline-flex min-h-10 items-center justify-center rounded bg-primary px-4 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Send
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <button
+    type="button"
+    id="groundie-toggle"
+    class="ml-auto mt-3 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-on-primary shadow-[0_14px_34px_-20px_rgba(20,20,20,0.65)] transition hover:bg-primary-hover active:translate-y-px"
+    aria-controls="groundie-panel"
+    aria-expanded="false"
+  >
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm3.75 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm3.75 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.142-4.03 7.5-9 7.5a10.36 10.36 0 0 1-4.014-.789L3 21l1.653-4.132C3.608 15.527 3 13.853 3 12c0-4.142 4.03-7.5 9-7.5s9 3.358 9 7.5Z" />
+    </svg>
+    Groundie
+  </button>
+</div>
+
+<script>
+  (() => {
+    const widget = document.getElementById('groundie-widget');
+    if (!widget) return;
+
+    const panel = document.getElementById('groundie-panel');
+    const toggle = document.getElementById('groundie-toggle');
+    const close = document.getElementById('groundie-close');
+    const form = document.getElementById('groundie-form');
+    const input = document.getElementById('groundie-question');
+    const submit = document.getElementById('groundie-send');
+    const messages = document.getElementById('groundie-messages');
+    const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+    const historyKey = 'groundie.chat.history.v1';
+    const openKey = 'groundie.chat.open.v1';
+    const draftKey = 'groundie.chat.draft.v1';
+    let history = [];
+    let controller = null;
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value || '';
+      return div.innerHTML;
+    }
+
+    function inlineMarkdown(value) {
+      return value
+        .replace(/`([^`]+)`/g, '<code class="rounded bg-surface-low px-1 py-0.5 text-xs">$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a class="font-medium text-primary hover:text-primary-hover" href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    function renderMarkdown(value) {
+      const lines = escapeHtml(value).split('\n');
+      let html = '';
+      let inList = false;
+
+      const closeList = () => {
+        if (inList) html += '</ul>';
+        inList = false;
+      };
+
+      for (const line of lines) {
+        const text = inlineMarkdown(line.trim());
+        const bullet = text.match(/^[-*]\s+(.+)$/);
+
+        if (!text) {
+          closeList();
+          continue;
+        }
+
+        if (bullet) {
+          if (!inList) {
+            html += '<ul class="my-2 list-disc space-y-1 pl-5">';
+            inList = true;
+          }
+          html += `<li>${bullet[1]}</li>`;
+        } else {
+          closeList();
+          html += `<p class="my-2">${text}</p>`;
+        }
+      }
+
+      closeList();
+      return html;
+    }
+
+    function setOpen(isOpen) {
+      panel.classList.toggle('hidden', !isOpen);
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      saveValue(openKey, isOpen ? 'true' : 'false');
+      if (isOpen) {
+        window.setTimeout(() => input.focus(), 50);
+      }
+    }
+
+    function clearEmptyState() {
+      if (messages.dataset.empty === 'true') {
+        messages.innerHTML = '';
+        messages.dataset.empty = 'false';
+      }
+    }
+
+    function scrollToLatest() {
+      messages.scrollTo({
+        top: messages.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+
+    function addUserMessage(message) {
+      messages.insertAdjacentHTML('beforeend', `
+        <article class="flex justify-end">
+          <div class="max-w-[18rem] rounded-lg bg-surface-low px-3 py-2">
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">You</p>
+            <p class="mt-1 whitespace-pre-line text-sm leading-6 text-text">${escapeHtml(message)}</p>
+          </div>
+        </article>
+      `);
+      scrollToLatest();
+    }
+
+    function addStatus(message) {
+      removeStatus();
+      messages.insertAdjacentHTML('beforeend', `
+        <article data-groundie-status class="rounded-lg border border-dashed border-border bg-white px-3 py-2">
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Groundie</p>
+          <p class="mt-1 text-sm leading-6 text-text-subtle">${escapeHtml(message)}...</p>
+        </article>
+      `);
+      scrollToLatest();
+    }
+
+    function removeStatus() {
+      const status = messages.querySelector('[data-groundie-status]');
+      if (status) status.remove();
+    }
+
+    function addAnswer(message) {
+      removeStatus();
+      messages.insertAdjacentHTML('beforeend', `
+        <article class="rounded-lg border border-border bg-white px-3 py-3">
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Groundie</p>
+          <div class="mt-2 text-sm leading-6 text-text">${renderMarkdown(message)}</div>
+        </article>
+      `);
+      scrollToLatest();
+    }
+
+    function addError(message) {
+      removeStatus();
+      messages.insertAdjacentHTML('beforeend', `
+        <article class="rounded-lg border border-border bg-white px-3 py-2">
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Error</p>
+          <p class="mt-1 text-sm leading-6 text-text-subtle">${escapeHtml(message)}</p>
+        </article>
+      `);
+      scrollToLatest();
+    }
+
+    function setLoading(isLoading) {
+      submit.disabled = isLoading;
+      submit.textContent = isLoading ? 'Sending' : 'Send';
+    }
+
+    function saveValue(key, value) {
+      try {
+        window.sessionStorage.setItem(key, value);
+      } catch (error) {
+        return;
+      }
+    }
+
+    function readValue(key) {
+      try {
+        return window.sessionStorage.getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveHistory() {
+      saveValue(historyKey, JSON.stringify(history.slice(-10)));
+    }
+
+    function restoreState() {
+      const savedHistory = readValue(historyKey);
+      const savedDraft = readValue(draftKey);
+      const savedOpen = readValue(openKey);
+
+      if (savedHistory) {
+        try {
+          history = JSON.parse(savedHistory).filter((item) => {
+            return ['user', 'assistant'].includes(item.role) && item.content;
+          });
+        } catch (error) {
+          history = [];
+        }
+      }
+
+      if (history.length) {
+        clearEmptyState();
+        history.forEach((item) => {
+          if (item.role === 'user') addUserMessage(item.content);
+          if (item.role === 'assistant') addAnswer(item.content);
+        });
+      }
+
+      if (savedDraft) {
+        input.value = savedDraft;
+        resizeInput();
+      }
+
+      setOpen(savedOpen === 'true');
+    }
+
+    function resizeInput() {
+      input.style.height = 'auto';
+      input.style.height = `${Math.min(input.scrollHeight, 96)}px`;
+    }
+
+    async function readStream(response) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop();
+
+        for (const part of parts) {
+          const line = part.split('\n').find((item) => item.startsWith('data: '));
+          if (!line) continue;
+          handleStreamPayload(JSON.parse(line.slice(6)));
+        }
+      }
+    }
+
+    function handleStreamPayload(payload) {
+      if (payload.type === 'status') addStatus(payload.message);
+      if (payload.type === 'tool_start') addStatus(payload.event.query || payload.event.label);
+      if (payload.type === 'tool_done') addStatus(payload.event.message || payload.event.label);
+      if (payload.type === 'answer') {
+        addAnswer(payload.message);
+        history.push({ role: 'assistant', content: payload.message });
+        saveHistory();
+        setLoading(false);
+      }
+      if (payload.type === 'error') {
+        addError(payload.message);
+        setLoading(false);
+      }
+    }
+
+    async function sendMessage(event) {
+      event.preventDefault();
+      const question = input.value.trim();
+      if (!question) return;
+
+      if (controller) controller.abort();
+      controller = new AbortController();
+
+      clearEmptyState();
+      addUserMessage(question);
+      history.push({ role: 'user', content: question });
+      saveHistory();
+      addStatus('Thinking');
+      setLoading(true);
+      input.value = '';
+      saveValue(draftKey, '');
+      resizeInput();
+
+      try {
+        const response = await fetch("{% url 'askagent:stream' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+          body: JSON.stringify({
+            question,
+            history: history.slice(0, -1),
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok || !response.body) {
+          throw new Error('Stream failed');
+        }
+
+        await readStream(response);
+        setLoading(false);
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        addError('The live response stopped. Try again.');
+        setLoading(false);
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      setOpen(panel.classList.contains('hidden'));
+    });
+
+    close.addEventListener('click', () => setOpen(false));
+    form.addEventListener('submit', sendMessage);
+    input.addEventListener('input', () => {
+      resizeInput();
+      saveValue(draftKey, input.value);
+    });
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+    restoreState();
+  })();
+</script>

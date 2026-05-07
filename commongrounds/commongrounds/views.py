@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from localevents.models import Event
+
 from bookclub.models import Book
 from commissions.models import Commission
+from localevents.models import Event
 
 
 def landing(request):

@@ -16,6 +16,8 @@
         Projects</a>
       <a href="{% url 'commissions:list' %}"
         class="text-xs font-semibold uppercase tracking-widest text-text-subtle hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors pb-0.5">Gigs</a>
+      <a href="{% url 'askagent:ask' %}"
+        class="text-xs font-semibold uppercase tracking-widest text-text-subtle hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors pb-0.5">Groundie</a>
     </div>
 
     <div class="hidden md:flex items-center gap-4">
@@ -62,6 +64,8 @@
       Projects</a>
     <a href="{% url 'commissions:list' %}"
       class="nav-link text-sm font-medium text-text hover:text-primary">Gigs</a>
+    <a href="{% url 'askagent:ask' %}"
+      class="nav-link text-sm font-medium text-text hover:text-primary">Groundie</a>
     <div class="border-t border-border pt-4 flex items-center gap-4">
       {% if user.is_authenticated %}
       <a href="{% url 'merchstore:cart' %}" class="text-text-subtle hover:text-primary">
