@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ book.title }} | Book Club{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+	<div class="max-w-3xl mx-auto">
+		<a href="{{ book.get_absolute_url }}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to Book Details</a>
+
+		<div class="mt-10">
+			<h1 class="font-display text-3xl font-bold text-text">Edit Book</h1>
+			<p class="mt-2 text-sm text-text-subtle">Only users with the Book Contributor role can update books.</p>
+		</div>
+
+		<form method="post" class="mt-8 rounded-lg border border-border bg-white p-6">
+			{% csrf_token %}
+
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-text mb-2">Title</label>
+				{{ form.title }}
+				{% if form.title.errors %}
+					<div class="mt-2 text-sm text-red-600">{{ form.title.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-text mb-2">Author</label>
+				{{ form.author }}
+				{% if form.author.errors %}
+					<div class="mt-2 text-sm text-red-600">{{ form.author.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-text mb-2">Genre</label>
+				{{ form.genre }}
+				{% if form.genre.errors %}
+					<div class="mt-2 text-sm text-red-600">{{ form.genre.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-text mb-2">Publication year</label>
+				{{ form.publication_year }}
+				{% if form.publication_year.errors %}
+					<div class="mt-2 text-sm text-red-600">{{ form.publication_year.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-text mb-2">Synopsis</label>
+				{{ form.synopsis }}
+				{% if form.synopsis.errors %}
+					<div class="mt-2 text-sm text-red-600">{{ form.synopsis.errors }}</div>
+				{% endif %}
+			</div>
+
+			<div class="mb-6 flex items-center gap-3">
+				{{ form.available_to_borrow }}
+				<label class="text-sm text-text-subtle">Available to borrow</label>
+			</div>
+
+			<div class="mb-6">
+				<p class="text-sm text-text-subtle">
+					Contributor:
+					<strong>
+						{% if book.contributor %}{{ book.contributor.display_name }}{% else %}Unassigned{% endif %}
+					</strong>
+				</p>
+			</div>
+
+			<div class="flex gap-3">
+				<button type="submit" class="inline-flex justify-center rounded bg-primary px-6 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+					Save Changes
+				</button>
+			</div>
+		</form>
+	</div>
+</main>
+{% endblock %}
