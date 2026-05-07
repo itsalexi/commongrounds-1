@@ -25,6 +25,29 @@ class ProjectRepository:
     def get_reviewed_by(self, profile):
         return Project.objects.filter(projectreview__reviewer=profile).distinct()
 
+    def get_favorites_grouped_by_status(self, profile):
+        favorites = (
+            Favorite.objects.filter(profile=profile)
+            .select_related('project')
+        )
+        groups = {status.value: [] for status in Favorite.Status}
+        for favorite in favorites:
+            groups[favorite.project_status].append(favorite)
+        return groups
+
+    def get_favorite_for(self, project, profile):
+        return Favorite.objects.filter(project=project, profile=profile).first()
+
+    def set_favorite_status(self, project, profile, status):
+        if status not in Favorite.Status.values:
+            return None
+        favorite, _ = Favorite.objects.get_or_create(
+            project=project, profile=profile
+        )
+        favorite.project_status = status
+        favorite.save()
+        return favorite
+
     def get_reviews(self, project):
         return ProjectReview.objects.filter(project=project)
 
@@ -35,27 +58,3 @@ class ProjectRepository:
         return ProjectRating.objects.filter(project=project).aggregate(
             avg=Avg('score')
         )['avg']
-
-    def toggle_favorite(self, project, profile):
-        Favorite.objects.get_or_create(project=project, profile=profile)
-
-    def add_review(self, project, profile, form):
-        review = form.save(commit=False)
-        review.project = project
-        review.reviewer = profile
-        review.save()
-        return review
-
-    def add_rating(self, project, profile, score):
-        return ProjectRating.objects.create(
-            project=project, profile=profile, score=score
-        )
-
-    def create(self, form, profile):
-        project = form.save(commit=False)
-        project.creator = profile
-        project.save()
-        return project
-
-    def update(self, form):
-        return form.save()

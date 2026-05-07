@@ -43,19 +43,29 @@
       </section>
     {% endif %}
 
-    {% if favorited_projects %}
+    {% if has_favorites %}
       <section>
         <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
           <div>
             <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Saved</p>
-            <h2 class="mt-1 font-display text-3xl font-bold text-text">Projects you favorited</h2>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Your favorites</h2>
           </div>
         </div>
-        <div class="space-y-4">
-          {% for project in favorited_projects %}
-            <article class="rounded-lg border border-border bg-white p-5">
-              <a href="{{ project.get_absolute_url }}" class="font-display text-xl font-bold text-text hover:text-primary">{{ project.title }}</a>
-            </article>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          {% for label, bucket in favorite_buckets %}
+            <div>
+              <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-text-subtle">{{ label }} · {{ bucket|length }}</p>
+              <div class="space-y-3">
+                {% for favorite in bucket %}
+                  <article class="rounded-lg border border-border bg-white p-4">
+                    <a href="{{ favorite.project.get_absolute_url }}" class="font-display text-base font-bold text-text hover:text-primary">{{ favorite.project.title }}</a>
+                  </article>
+                {% empty %}
+                  <p class="text-xs text-text-subtle italic">Nothing here yet.</p>
+                {% endfor %}
+              </div>
+            </div>
           {% endfor %}
         </div>
       </section>
