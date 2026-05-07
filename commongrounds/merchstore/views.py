@@ -103,7 +103,7 @@ class CartView(ListView):
         return ctx
 
 
-class TransactionListview(ListView):
+class TransactionListView(ListView):
     model = Transaction
     template_name = 'merchstore/transaction_list.html'
 
