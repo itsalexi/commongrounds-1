@@ -45,7 +45,14 @@
         <div>
           <dt class="text-text-subtle">Availability</dt>
           <dd class="mt-1 font-medium">
-            {% if book.available_to_borrow %}✓ Available{% else %}✗ Unavailable{% endif %}
+            {% if book.available_to_borrow %}
+              <span class="text-green-700">Available</span>
+            {% elif user_borrow %}
+              <span class="text-primary">Borrowed by you</span>
+              <span class="mt-1 block text-xs font-normal text-text-subtle">Return by {{ user_borrow.date_to_return|date:'M d, Y' }}</span>
+            {% else %}
+              <span class="text-red-700">Borrowed out</span>
+            {% endif %}
           </dd>
         </div>
         <div>
@@ -72,7 +79,15 @@
       </div>
     </article>
 
-    {% if book.available_to_borrow %}
+    {% if user_borrow %}
+    <section class="mt-10 rounded-lg border border-primary/30 bg-primary/5 p-6">
+      <div class="flex flex-col gap-2">
+        <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Checked out</p>
+        <h3 class="font-display text-lg font-bold text-text">You borrowed this book</h3>
+        <p class="text-sm text-text-subtle">Return by {{ user_borrow.date_to_return|date:'M d, Y' }}.</p>
+      </div>
+    </section>
+    {% elif book.available_to_borrow %}
     <section class="mt-10 rounded-lg border border-border bg-white p-6">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

@@ -28,17 +28,24 @@ def book_list(request):
                 bookmarks__profile=user_profile).distinct()
             reviewed_books = Book.objects.filter(
                 reviews__user_reviewer=user_profile).distinct()
+            borrowed_books = Borrow.objects.filter(
+                borrower=user_profile,
+                book__available_to_borrow=False,
+            ).select_related('book').order_by('date_to_return')
 
             ctx.update({
                 'contributed_books': contributed_books,
                 'bookmarked_books': bookmarked_books,
                 'reviewed_books': reviewed_books,
+                'borrowed_books': borrowed_books,
                 'all_books': books.exclude(
                     pk__in=contributed_books.values('pk')
                 ).exclude(
                     pk__in=bookmarked_books.values('pk')
                 ).exclude(
                     pk__in=reviewed_books.values('pk')
+                ).exclude(
+                    pk__in=borrowed_books.values('book_id')
                 ),
                 'can_add_book': user_profile.role == Profile.Role.BOOK_CONTRIBUTOR,
             })
@@ -54,6 +61,7 @@ def book_detail(request, pk):
     bookmark_count = book.bookmarks.count()
     is_bookmarked = False
     can_edit_book = False
+    user_borrow = None
     user_profile = None
 
     if request.user.is_authenticated:
@@ -62,6 +70,11 @@ def book_detail(request, pk):
             is_bookmarked = Bookmark.objects.filter(
                 profile=user_profile, book=book).exists()
             can_edit_book = user_profile == book.contributor
+            if not book.available_to_borrow:
+                user_borrow = Borrow.objects.filter(
+                    borrower=user_profile,
+                    book=book,
+                ).order_by('-date_borrowed', '-pk').first()
         except Profile.DoesNotExist:
             pass
 
@@ -86,6 +99,7 @@ def book_detail(request, pk):
         'bookmark_count': bookmark_count,
         'is_bookmarked': is_bookmarked,
         'can_edit_book': can_edit_book,
+        'user_borrow': user_borrow,
         'form': form,
     }
     return render(request, 'bookclub/book_detail.html', ctx)

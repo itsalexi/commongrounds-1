@@ -24,6 +24,33 @@
     </section>
 
     {% if request.user.is_authenticated %}
+      {% if borrowed_books %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Checked out</p>
+            <h2 class="font-display text-2xl font-bold text-text">Books You Borrowed</h2>
+          </div>
+        </div>
+        <div class="space-y-4">
+          {% for borrow in borrowed_books %}
+            <div class="rounded-lg border border-primary/30 bg-primary/5 p-4">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <a href="{{ borrow.book.get_absolute_url }}" class="font-semibold text-primary hover:text-primary-hover">{{ borrow.book.title }}</a>
+                  <p class="text-sm text-text-subtle">By {{ borrow.book.author }} ({{ borrow.book.publication_year }})</p>
+                </div>
+                <div class="text-sm font-medium text-text">
+                  <p>Borrowed by you</p>
+                  <p class="mt-1 text-xs text-text-subtle">Return by {{ borrow.date_to_return|date:'M d, Y' }}</p>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
       {% if contributed_books %}
       <section>
         <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
