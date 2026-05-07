@@ -4,41 +4,49 @@ from django.views import View
 
 from accounts.decorators import role_required
 from .forms import EventForm, EventSignupForm
-from .models import Event, EventSignup, EventType
+from .models import Event, EventSignup
 
 
 def event_list(request):
-    selected_category_id = request.GET.get('category')
-    if selected_category_id and not selected_category_id.isdecimal():
-        selected_category_id = None
-    categories = EventType.objects.all()
     events = (
         Event.objects.select_related('category')
         .prefetch_related('organizer', 'signups')
         .order_by('start_time')
     )
+    created_events = Event.objects.none()
+    signed_up_events = Event.objects.none()
+    all_events = events
+    profile = None
 
-    if selected_category_id:
-        events = events.filter(category_id=selected_category_id)
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.profile
+        except Exception:
+            profile = None
+
+        if profile:
+            created_events = events.filter(organizer=profile)
+            signed_up_events = (
+                events.filter(signups__user_registrant=profile)
+                .exclude(organizer=profile)
+                .distinct()
+            )
+            all_events = (
+                events.exclude(pk__in=created_events.values('pk'))
+                .exclude(pk__in=signed_up_events.values('pk'))
+            )
 
     ctx = {
-        'categories': categories,
-        'selected_category_id': selected_category_id,
-        'all_events': events,
+        'created_events': created_events,
+        'signed_up_events': signed_up_events,
+        'all_events': all_events,
+        'can_create_event': (
+            profile is not None
+            and profile.role == 'Event Organizer'
+        ),
     }
 
     return render(request, 'events/event_list.html', ctx)
-
-
-@role_required('Event Organizer')
-def manage_events(request):
-    events = (
-        Event.objects.select_related('category')
-        .prefetch_related('signups')
-        .filter(organizer=request.user.profile)
-        .order_by('start_time')
-    )
-    return render(request, 'events/manage_events.html', {'events': events})
 
 
 def event_detail(request, pk):
