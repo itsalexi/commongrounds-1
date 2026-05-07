@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.views import View
 
 from accounts.decorators import role_required
+from accounts.models import Profile
 from .forms import EventForm, EventSignupForm
 from .models import Event, EventSignup
 
@@ -21,7 +22,7 @@ def event_list(request):
     if request.user.is_authenticated:
         try:
             profile = request.user.profile
-        except Exception:
+        except Profile.DoesNotExist:
             profile = None
 
         if profile:
@@ -42,7 +43,7 @@ def event_list(request):
         'all_events': all_events,
         'can_create_event': (
             profile is not None
-            and profile.role == 'Event Organizer'
+            and profile.role == Profile.Role.EVENT_ORGANIZER
         ),
     }
 
