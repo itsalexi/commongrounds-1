@@ -16,6 +16,7 @@ jobs:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
+          passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
           script: |
             cd ~/commongrounds-1
             git pull origin finals 
