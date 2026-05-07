@@ -28,7 +28,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['159.223.40.159', 'commongrounds.website', 'www.commonground.website', 'localhost']
+ALLOWED_HOSTS = ['159.223.40.159', 'commongrounds.website',
+                 'www.commonground.website', 'localhost', '127.0.0.1']
 
 
 # Application definition
