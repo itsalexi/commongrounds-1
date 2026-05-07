@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Cart{% endblock %}
+
+{% block content %}
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-5xl mx-auto space-y-9">
+    <section>
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle mb-2">Shopping</p>
+      <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight text-text">My Cart</h1>
+      <p class="mt-3 max-w-xl text-sm md:text-base leading-relaxed text-text-subtle">
+        Review your pending purchases and track your orders from Common Grounds sellers.
+      </p>
+    </section>
+
+    <div class="space-y-10">
+      {% regroup buy_transactions by product.owner as seller_list %}
+
+      {% for seller in seller_list %}
+        <section>
+          <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Seller</p>
+              <h2 class="mt-1 font-display text-2xl font-bold text-text">{{ seller.grouper }}</h2>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            {% for transaction in seller.list %}
+              <article class="overflow-hidden rounded-lg border border-border bg-white md:grid md:grid-cols-[120px_1fr]">
+                <div class="h-32 bg-surface-low md:h-full">
+                  {% if transaction.product.product_image %}
+                    <img src="{{ transaction.product.product_image.url }}" alt="{{ transaction.product.name }}" class="h-full w-full object-cover">
+                  {% else %}
+                    <img src="{% static 'img/shop.jpeg' %}" alt="{{ transaction.product.name }}" class="h-full w-full object-cover">
+                  {% endif %}
+                </div>
+
+                <div class="p-5 flex flex-col justify-between">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 class="font-display text-xl font-bold text-text">
+                        <a href="{{ transaction.product.get_absolute_url }}" class="hover:text-primary transition-colors">
+                          {{ transaction.product.name }}
+                        </a>
+                      </h3>
+                      <p class="text-sm text-text-subtle mt-1">
+                        Quantity: {{ transaction.amount }} · ${{ transaction.product.price }} each
+                      </p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-surface-mid px-2.5 py-0.5 text-xs font-medium text-text-subtle">
+                      {{ transaction.get_status_display }}
+                    </span>
+                  </div>
+
+                  <div class="mt-4 flex items-center justify-between border-t border-border pt-4">
+                    <span class="text-lg font-bold text-text">Subtotal</span>
+                    <p class="text-xs text-text-subtle">Ordered on {{ transaction.created_on|date:"F d, Y" }}</p>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% empty %}
+        <div class="rounded-lg bg-surface-low p-12 text-center border border-dashed border-border">
+          <h2 class="font-display text-2xl font-bold text-text">Your cart is empty</h2>
+          <p class="mt-2 text-sm text-text-subtle">Looks like you haven't added anything yet.</p>
+          <a href="{% url 'merchstore:product_list' %}" class="mt-6 inline-flex items-center justify-center rounded bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+            Start shopping
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}
