@@ -1,0 +1,29 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - finals
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
+          script: |
+            cd ~/commongrounds-1
+            git pull origin finals 
+            source venv/bin/activate
+            pip install -r requirements.txt
+            cd commongrounds
+            python manage.py tailwind build
+            python manage.py collectstatic --noinput
+            python manage.py migrate
+            sudo systemctl restart gunicorn

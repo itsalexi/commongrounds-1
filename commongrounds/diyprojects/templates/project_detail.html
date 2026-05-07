@@ -1,16 +1,132 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block title %}{{ project.title }}{% endblock %}
+
 {% block content %}
-<h2>Project Detail</h2>
-<a href="{% url 'diyprojects:project_list' %}">Back to List</a>
+<main class="min-h-screen bg-surface px-6 py-10 md:py-14">
+  <div class="max-w-3xl mx-auto">
+    <a href="{% url 'diyprojects:project_list' %}" class="text-sm font-medium text-text-subtle hover:text-primary">&larr; Back to projects</a>
 
-<h3>{{ project.title }}</h3> 
-  <h4> Category: {{ project.category.name }}</h4>
-  <p>{{ project.description }}</p>
-  <h3>Materials</h3>
-  <p>{{ project.materials }}</p>
-  <h3>Steps</h3>
-  <p>{{ project.steps }}</p>
-  <p>Created on: {{ project.created_on }}</p>
+    <div class="mt-10">
+      <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">
+        DIY Project{% if project.category %} · {{ project.category.name }}{% endif %}
+      </p>
 
+      <h1 class="mt-3 font-display text-4xl md:text-5xl font-bold leading-tight text-text">{{ project.title }}</h1>
+
+      <p class="mt-4 text-sm text-text-subtle">Created on {{ project.created_on|date:"M d, Y" }}</p>
+
+      <p class="mt-8 text-base leading-8 text-text-subtle">{{ project.description }}</p>
+
+      <dl class="mt-8 grid gap-4 border-y border-border py-5 text-sm sm:grid-cols-2">
+        <div>
+          <dt class="text-text-subtle">Favorites</dt>
+          <dd class="mt-1 font-medium text-text">{{ favorite_count }}</dd>
+        </div>
+        <div>
+          <dt class="text-text-subtle">Average rating</dt>
+          <dd class="mt-1 font-medium text-text">
+            {% if average_rating %}{{ average_rating|floatformat:2 }}{% else %}No ratings yet{% endif %}
+          </dd>
+        </div>
+      </dl>
+
+      <section class="mt-8">
+        <h2 class="font-display text-2xl font-bold text-text">Materials</h2>
+        <p class="mt-3 text-base leading-7 text-text-subtle whitespace-pre-line">{{ project.materials }}</p>
+      </section>
+
+      <section class="mt-8">
+        <h2 class="font-display text-2xl font-bold text-text">Steps</h2>
+        <p class="mt-3 text-base leading-7 text-text-subtle whitespace-pre-line">{{ project.steps }}</p>
+      </section>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        {% if is_creator %}
+          <a href="{% url 'diyprojects:project_update' project.pk %}" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary hover:bg-primary-hover">
+            Edit project
+          </a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          {% if user_favorite %}
+            <form method="post" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {% csrf_token %}
+              <label for="project_status" class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Status</label>
+              <select id="project_status" name="project_status" class="rounded border border-border bg-white px-3 py-2 text-sm text-text">
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if user_favorite.project_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" name="action" value="set_status" class="inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+                Save status
+              </button>
+            </form>
+          {% else %}
+            <form method="post">
+              {% csrf_token %}
+              <button type="submit" name="action" value="favorite" class="inline-flex w-full sm:w-auto justify-center rounded border border-border bg-white px-5 py-2.5 text-sm font-medium text-text-subtle transition hover:text-text">
+                Favorite
+              </button>
+            </form>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {% if user.is_authenticated %}
+        <section class="mt-12 rounded-lg border border-border bg-white p-6 md:p-8">
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Feedback</p>
+          <h2 class="mt-2 font-display text-2xl font-bold text-text">Rate this project</h2>
+          <form method="post" class="event-form mt-6">
+            {% csrf_token %}
+            {{ rating_form.as_p }}
+            <button type="submit" name="action" value="rate" class="mt-2 inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+              Submit rating
+            </button>
+          </form>
+        </section>
+
+        <section class="mt-6 rounded-lg border border-border bg-white p-6 md:p-8">
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Share your build</p>
+          <h2 class="mt-2 font-display text-2xl font-bold text-text">Add a review</h2>
+          <form method="post" enctype="multipart/form-data" class="event-form mt-6">
+            {% csrf_token %}
+            {{ review_form.as_p }}
+            <button type="submit" name="action" value="review" class="mt-2 inline-flex justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+              Submit review
+            </button>
+          </form>
+        </section>
+      {% endif %}
+
+      <section class="mt-12">
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Community</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Reviews</h2>
+          </div>
+        </div>
+
+        {% if reviews %}
+          <div class="space-y-4">
+            {% for review in reviews %}
+              <article class="rounded-lg border border-border bg-white p-5">
+                <p class="text-sm font-medium text-text">{{ review.reviewer }}</p>
+                <p class="mt-2 text-sm leading-6 text-text-subtle">{{ review.comment }}</p>
+                {% if review.image %}
+                  <img src="{{ review.image.url }}" alt="review image" class="mt-4 max-w-xs rounded border border-border">
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="rounded-lg bg-surface-low p-10 text-center">
+            <p class="text-sm text-text-subtle">No reviews yet.</p>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</main>
 {% endblock %}
