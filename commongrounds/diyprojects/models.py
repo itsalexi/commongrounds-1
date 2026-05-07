@@ -67,7 +67,7 @@ class ProjectReview(models.Model):
         Profile, on_delete=models.CASCADE
     )
     comment = models.TextField()
-    image = models.ImageField()
+    image = models.ImageField(upload_to='reviews/', null=True, blank=True)
 
 
 class ProjectRating(models.Model):
