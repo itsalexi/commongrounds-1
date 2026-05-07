@@ -7,7 +7,7 @@ from .models import *
 from accounts.models import Profile
 from accounts.decorators import role_required
 from django.utils import timezone
-from .forms import BookReviewForm, BookForm, BorrowForm
+from .forms import BorrowForm, BookFormFactory
 
 
 def book_list(request):
@@ -56,7 +56,7 @@ def book_detail(request, pk):
             pass
 
     if request.method == 'POST':
-        form = BookReviewForm(request.POST)
+        form = BookFormFactory.get_form('review', user_profile=user_profile)
         if form.is_valid():
             review = form.save(commit=False)
             review.book = book
@@ -67,7 +67,7 @@ def book_detail(request, pk):
             review.save()
             return redirect('bookclub:book_detail', pk=pk)
     else:
-        form = BookReviewForm()
+        form = BookFormFactory.get_form('review', user_profile=user_profile)
 
     ctx = {
         'book': book,
@@ -157,14 +157,14 @@ def book_add(request):
         return HttpResponseForbidden('Unathorized: User is not a Book Contributor')
 
     if request.method == 'POST':
-        form = BookForm(request.POST)
+        form = BookFormFactory.get_form('contribute', user_profile=user_profile)
         if form.is_valid():
             book = form.save(commit=False)
             book.contributor = user_profile
             book.save()
             return redirect('bookclub:book_detail', pk=book.pk)
     else:
-        form = BookForm()
+        form = BookFormFactory.get_form('contribute', user_profile=user_profile)
 
     ctx = {
         'form': form,
@@ -178,14 +178,14 @@ def book_update(request, pk):
     book = Book.objects.get(pk=pk)
 
     if request.method == 'POST':
-        form = BookForm(request.POST, instance=book)
+        form = BookFormFactory.get_form('update', instance=book)
         if form.is_valid():
             updated_book = form.save(commit=False)
             updated_book.contributor = book.contributor
             updated_book.save()
             return redirect('bookclub:book_detail', pk=updated_book.pk)
     else:
-        form = BookForm(instance=book)
+        form = BookFormFactory.get_form('update', instance=book)
 
     ctx = {
         'form': form,
