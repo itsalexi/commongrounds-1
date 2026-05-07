@@ -13,9 +13,11 @@ def project_list(request):
     all_projects = project_repo.get_all()
     created = reviewed = all_projects.none()
     favorites_by_status = {status.value: [] for status in Favorite.Status}
+    can_create_project = False
 
     if request.user.is_authenticated and hasattr(request.user, 'profile'):
         profile = request.user.profile
+        can_create_project = profile.role == Profile.Role.PROJECT_CREATOR
         created = project_repo.get_created_by(profile)
         favorited = project_repo.get_favorited_by(profile)
         reviewed = project_repo.get_reviewed_by(profile)
@@ -41,6 +43,7 @@ def project_list(request):
         'favorite_buckets': favorite_buckets,
         'has_favorites': has_favorites,
         'reviewed_projects': reviewed,
+        'can_create_project': can_create_project,
     }
 
     return render(request, 'project_list.html', ctx)
