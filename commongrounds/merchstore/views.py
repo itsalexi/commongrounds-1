@@ -98,7 +98,7 @@ class CartView(ListView):
         ctx = super().get_context_data(**kwargs)
 
         ctx['buy_transactions'] = Transaction.objects.filter(
-            buyer=self.request.user.profile).order_by('prouct__owner')
+            buyer=self.request.user.profile).order_by('product__owner')
 
         return ctx
 
