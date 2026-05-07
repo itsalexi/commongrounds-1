@@ -31,7 +31,7 @@ OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'google/gemini-2.0-flash-001')
 DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ['159.223.40.159', 'commongrounds.website',
-                 'www.commonground.website', 'localhost', '127.0.0.1']
+                 'www.commonground.website', 'localhost', '127.0.0.1', 'ai.commongrounds.website']
 
 
 # Application definition
