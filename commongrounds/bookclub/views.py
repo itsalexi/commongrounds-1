@@ -157,14 +157,16 @@ def book_add(request):
         return HttpResponseForbidden('Unathorized: User is not a Book Contributor')
 
     if request.method == 'POST':
-        form = BookFormFactory.get_form('contribute', user_profile=user_profile)
+        form = BookFormFactory.get_form(
+            'contribute', user_profile=user_profile)
         if form.is_valid():
             book = form.save(commit=False)
             book.contributor = user_profile
             book.save()
             return redirect('bookclub:book_detail', pk=book.pk)
     else:
-        form = BookFormFactory.get_form('contribute', user_profile=user_profile)
+        form = BookFormFactory.get_form(
+            'contribute', user_profile=user_profile)
 
     ctx = {
         'form': form,
