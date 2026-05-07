@@ -58,8 +58,7 @@
       <div class="grid gap-6 md:grid-cols-3">
         {% for label, bucket in favorite_buckets %}
         <div>
-          <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-text-subtle">{{ label }} · {{
-            bucket|length }}</p>
+          <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-text-subtle">{{ label }} · {{ bucket|length }}</p>
           <div class="space-y-3">
             {% for favorite in bucket %}
             <article class="rounded-lg border border-border bg-white p-4">
