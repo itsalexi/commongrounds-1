@@ -1,6 +1,8 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from django.shortcuts import redirect
 
 from .models import Product, Profile, ProductType, Transaction
 from .forms import TransactionForm, ProductForm
@@ -46,9 +48,12 @@ class ProductDetailView(DetailView):
 
         ctx['can_edit'] = (
             self.request.user.is_authenticated
-            and self.request.user == self.object.owner
+            and hasattr(self.request.user, 'profile')
+            and self.request.user.profile == self.object.owner
         )
-        ctx['transaction_form'] = TransactionForm()
+
+        if 'transaction_form' not in ctx:
+            ctx['transaction_form'] = TransactionForm()
 
         return ctx
 
@@ -90,7 +95,7 @@ class ProductUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class CartView(ListView):
+class CartView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'merchstore/cart.html'
 
@@ -98,12 +103,12 @@ class CartView(ListView):
         ctx = super().get_context_data(**kwargs)
 
         ctx['buy_transactions'] = Transaction.objects.filter(
-            buyer=self.request.user.profile).order_by('prouct__owner')
+            buyer=self.request.user.profile).order_by('product__owner')
 
         return ctx
 
 
-class TransactionListView(ListView):
+class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'merchstore/transaction_list.html'
 
