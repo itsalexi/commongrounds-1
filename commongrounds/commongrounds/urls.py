@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
-from django.views.static import serve
 from .views import landing
 
 urlpatterns = [
@@ -35,6 +34,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += [
-        path('events/<path:path>', serve, {'document_root': settings.MEDIA_ROOT / 'events'}),
-    ]

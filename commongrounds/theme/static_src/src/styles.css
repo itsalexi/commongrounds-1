@@ -124,6 +124,7 @@
   }
 
   .auth-form input,
+  .auth-form select,
   .event-form input,
   .event-form select,
   .event-form textarea,
@@ -151,6 +152,7 @@
   }
 
   .auth-form input:focus,
+  .auth-form select:focus,
   .event-form input:focus,
   .event-form select:focus,
   .event-form textarea:focus,
@@ -161,6 +163,30 @@
   .product-form select:focus,
   .product-form textarea:focus {
     border-color: var(--color-primary);
+  }
+
+  .auth-form select {
+    appearance: none;
+    min-height: 2.5rem;
+    cursor: pointer;
+    padding-right: 2.5rem;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--color-text-subtle) 50%),
+      linear-gradient(135deg, var(--color-text-subtle) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.15rem) 50%,
+      calc(100% - 0.9rem) 50%;
+    background-repeat: no-repeat;
+    background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+    box-shadow: 0 1px 0 rgba(31, 27, 21, 0.04);
+  }
+
+  .auth-form select:hover {
+    border-color: color-mix(in oklab, var(--color-primary) 45%, var(--color-border));
+  }
+
+  .auth-form select:focus {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 14%, transparent);
   }
 
   .event-form .helptext,
