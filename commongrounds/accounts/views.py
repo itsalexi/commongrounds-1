@@ -13,7 +13,7 @@ def register(request):
         Profile.objects.create(
             user=user,
             display_name=user.username,
-            email='',
+            email=user.email,
             role=form.cleaned_data['role'],
         )
         return redirect('login')
