@@ -14,40 +14,61 @@
         </p>
       </div>
 
-      {% if request.user.is_authenticated and request.user.profile.role == 'Event Organizer' %}
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <a href="{% url 'localevents:manage_events' %}" class="inline-flex items-center justify-center rounded border border-border bg-white px-5 py-2.5 text-sm font-medium text-text-subtle transition hover:text-text">
-            Manage events
-          </a>
-          <a href="{% url 'localevents:event_create' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
-            Create event
-          </a>
-        </div>
+      {% if can_create_event %}
+        <a href="{% url 'localevents:event_create' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
+          Create event
+        </a>
       {% endif %}
     </section>
 
-    {% if categories %}
-      <nav class="flex flex-wrap gap-2" aria-label="Event categories">
-        <a href="{% url 'localevents:event_list' %}" class="rounded-full border px-4 py-2 text-sm font-medium transition {% if not selected_category_id %}border-primary bg-primary text-on-primary{% else %}border-border bg-white text-text-subtle hover:text-text{% endif %}">
-          All
-        </a>
-        {% for category in categories %}
-          <a href="{% url 'localevents:event_list' %}?category={{ category.pk }}" class="rounded-full border px-4 py-2 text-sm font-medium transition {% if selected_category_id == category.pk|stringformat:'s' %}border-primary bg-primary text-on-primary{% else %}border-border bg-white text-text-subtle hover:text-text{% endif %}">
-            {{ category.name }}
-          </a>
-        {% endfor %}
-      </nav>
+    {% if user.is_authenticated %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Organizer</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Events Created</h2>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          {% for event in created_events %}
+            {% include 'events/_event_card.html' %}
+          {% empty %}
+            <div class="rounded-lg bg-surface-low p-8 text-center">
+              <h2 class="font-display text-2xl font-bold text-text">No events created</h2>
+              <p class="mt-2 text-sm text-text-subtle">Events you organize will appear here.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Registrations</p>
+            <h2 class="mt-1 font-display text-3xl font-bold text-text">Events Signed Up</h2>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          {% for event in signed_up_events %}
+            {% include 'events/_event_card.html' %}
+          {% empty %}
+            <div class="rounded-lg bg-surface-low p-8 text-center">
+              <h2 class="font-display text-2xl font-bold text-text">No event signups</h2>
+              <p class="mt-2 text-sm text-text-subtle">Events you join will appear here.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
 
     <section>
       <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Upcoming</p>
-          <h2 class="mt-1 font-display text-3xl font-bold text-text">This Month</h2>
+          <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Community calendar</p>
+          <h2 class="mt-1 font-display text-3xl font-bold text-text">All Events</h2>
         </div>
-        {% if selected_category_id %}
-          <a href="{% url 'localevents:event_list' %}" class="text-sm font-medium text-primary hover:text-primary-hover">Clear filter</a>
-        {% endif %}
       </div>
 
       <div class="space-y-4">
@@ -56,7 +77,7 @@
         {% empty %}
           <div class="rounded-lg bg-surface-low p-10 text-center lg:col-span-2">
             <h2 class="font-display text-2xl font-bold text-text">No events found</h2>
-            <p class="mt-2 text-sm text-text-subtle">Try another category or check back for new gatherings.</p>
+            <p class="mt-2 text-sm text-text-subtle">Check back for new gatherings.</p>
           </div>
         {% endfor %}
       </div>
