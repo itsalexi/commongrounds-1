@@ -2,7 +2,14 @@ from django.urls import path
 
 from accounts.decorators import role_required
 
-from .views import ProductCreateView, ProductDetailView, ProductListView, ProductUpdateView, CartView, TransactionListView
+from .views import (
+    CartView,
+    ProductCreateView,
+    ProductDetailView,
+    ProductListView,
+    ProductUpdateView,
+    TransactionListView,
+)
 
 urlpatterns = [
     path('items/', ProductListView.as_view(), name='product_list'),
@@ -13,8 +20,8 @@ urlpatterns = [
     ),
     path('item/<int:pk>', ProductDetailView.as_view(), name='product_detail'),
     path('item/<int:pk>/edit', ProductUpdateView.as_view(), name='product_update'),
-    path('cart', CartView.as_view, name='cart'),
-    path('transactions', TransactionListView.as_view(), name='transaction_list')
+    path('cart', CartView.as_view(), name='cart'),
+    path('transactions', TransactionListView.as_view(), name='transaction_list'),
 ]
 
 app_name = 'merchstore'
