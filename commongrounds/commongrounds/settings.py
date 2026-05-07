@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'anymail',
     'merchstore',
     'diyprojects',
     'localevents',
@@ -55,6 +56,17 @@ TAILWIND_APP_NAME = 'theme'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'anymail.backends.resend.EmailBackend')
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+ANYMAIL = {
+    'RESEND_API_KEY': RESEND_API_KEY,
+}
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL',
+    'Common Grounds <onboarding@resend.dev>',
+)
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

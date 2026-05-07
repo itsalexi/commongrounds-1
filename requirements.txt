@@ -1,5 +1,6 @@
 asgiref==3.11.1
 Django==6.0.3
+django-anymail[resend]==15.0
 django-tailwind==4.4.2
 gunicorn==25.3.0
 packaging==26.2
