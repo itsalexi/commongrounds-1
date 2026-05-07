@@ -19,7 +19,8 @@ jobs:
           passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
           script: |
             cd ~/commongrounds-1
-            git pull origin finals 
+            git fetch origin finals
+            git reset --hard origin/finals
             source venv/bin/activate
             pip install -r requirements.txt
             cd commongrounds
