@@ -14,16 +14,34 @@
         </p>
       </div>
 
-      {% if request.user.is_authenticated %}
-        {% if request.user.profile.role == 'Book Contributor' %}
+      {% if can_add_book %}
           <div class="flex flex-col gap-3 sm:flex-row">
             <a href="{% url 'bookclub:book_add' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover">
               Add Book
             </a>
           </div>
-        {% endif %}
       {% endif %}
     </section>
+
+    {% if request.user.is_authenticated %}
+      {% if contributed_books %}
+      <section>
+        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Your Additions</p>
+            <h2 class="font-display text-2xl font-bold text-text">Books You Contributed</h2>
+          </div>
+        </div>
+        <div class="space-y-4">
+          {% for book in contributed_books %}
+            <div class="rounded-lg border border-border p-4">
+              <a href="{{ book.get_absolute_url }}" class="font-semibold text-primary hover:text-primary-hover">{{ book.title }}</a>
+              <p class="text-sm text-text-subtle">By {{ book.author }} ({{ book.publication_year }})</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
 
       {% if bookmarked_books %}
       <section>
@@ -35,26 +53,6 @@
         </div>
         <div class="space-y-4">
           {% for book in bookmarked_books %}
-            <div class="rounded-lg border border-border p-4">
-              <a href="{{ book.get_absolute_url }}" class="font-semibold text-primary hover:text-primary-hover">{{ book.title }}</a>
-              <p class="text-sm text-text-subtle">By {{ book.author }} ({{ book.publication_year }})</p>
-            </div>
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-
-      {% if request.user.is_authenticated %}
-      {% if contributed_books %}
-      <section>
-        <div class="mb-5 flex items-end justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-widest text-text-subtle">Your Additions</p>
-            <h2 class="font-display text-2xl font-bold text-text">Books You Contributed</h2>
-          </div>
-        </div>
-        <div class="space-y-4">
-          {% for book in contributed_books %}
             <div class="rounded-lg border border-border p-4">
               <a href="{{ book.get_absolute_url }}" class="font-semibold text-primary hover:text-primary-hover">{{ book.title }}</a>
               <p class="text-sm text-text-subtle">By {{ book.author }} ({{ book.publication_year }})</p>
@@ -93,7 +91,7 @@
       </div>
 
       <div class="space-y-4">
-        {% for book in books %}
+        {% for book in all_books %}
           <div class="rounded-lg border border-border p-4">
             <a href="{{ book.get_absolute_url }}" class="font-semibold text-primary hover:text-primary-hover">{{ book.title }}</a>
             <p class="text-sm text-text-subtle">By {{ book.author }} ({{ book.publication_year }})</p>

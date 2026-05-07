@@ -15,7 +15,9 @@ def book_list(request):
     genres = Genre.objects.all()
     ctx = {
         'books': books,
+        'all_books': books,
         'genres': genres,
+        'can_add_book': False,
     }
 
     if request.user.is_authenticated:
@@ -31,6 +33,14 @@ def book_list(request):
                 'contributed_books': contributed_books,
                 'bookmarked_books': bookmarked_books,
                 'reviewed_books': reviewed_books,
+                'all_books': books.exclude(
+                    pk__in=contributed_books.values('pk')
+                ).exclude(
+                    pk__in=bookmarked_books.values('pk')
+                ).exclude(
+                    pk__in=reviewed_books.values('pk')
+                ),
+                'can_add_book': user_profile.role == Profile.Role.BOOK_CONTRIBUTOR,
             })
         except Profile.DoesNotExist:
             pass
@@ -51,12 +61,13 @@ def book_detail(request, pk):
             user_profile = Profile.objects.get(user=request.user)
             is_bookmarked = Bookmark.objects.filter(
                 profile=user_profile, book=book).exists()
-            can_edit_book = user_profile.role == Profile.Role.BOOK_CONTRIBUTOR
+            can_edit_book = user_profile == book.contributor
         except Profile.DoesNotExist:
             pass
 
     if request.method == 'POST':
-        form = BookFormFactory.get_form('review', user_profile=user_profile)
+        form = BookFormFactory.get_form(
+            'review', data=request.POST, user_profile=user_profile)
         if form.is_valid():
             review = form.save(commit=False)
             review.book = book
@@ -154,11 +165,11 @@ def book_add(request):
         return HttpResponseForbidden('Profile not found')
 
     if user_profile.role != Profile.Role.BOOK_CONTRIBUTOR:
-        return HttpResponseForbidden('Unathorized: User is not a Book Contributor')
+        return HttpResponseForbidden('Unauthorized: User is not a Book Contributor')
 
     if request.method == 'POST':
         form = BookFormFactory.get_form(
-            'contribute', user_profile=user_profile)
+            'contribute', data=request.POST, user_profile=user_profile)
         if form.is_valid():
             book = form.save(commit=False)
             book.contributor = user_profile
@@ -179,8 +190,12 @@ def book_add(request):
 def book_update(request, pk):
     book = Book.objects.get(pk=pk)
 
+    if book.contributor != request.user.profile:
+        return HttpResponseForbidden('Unauthorized: You can only update books you contributed')
+
     if request.method == 'POST':
-        form = BookFormFactory.get_form('update', instance=book)
+        form = BookFormFactory.get_form(
+            'update', data=request.POST, instance=book)
         if form.is_valid():
             updated_book = form.save(commit=False)
             updated_book.contributor = book.contributor
