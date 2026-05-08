@@ -1,1 +1,1 @@
-web: cd commongrounds && python manage.py migrate --noinput && python manage.py tailwind build && python manage.py collectstatic --noinput && gunicorn commongrounds.wsgi
+web: cd commongrounds && python manage.py migrate --noinput && python manage.py seed_data && python manage.py tailwind build && python manage.py collectstatic --noinput && gunicorn commongrounds.wsgi
