@@ -33,6 +33,11 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in {'1', 'true', 'yes', 'on'}
 ALLOWED_HOSTS = ['159.223.40.159', 'commongrounds.website',
                  'www.commonground.website', 'localhost', '127.0.0.1', 'ai.commongrounds.website']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://ai.commongrounds.website',
+    'https://commongrounds.website',
+]
+
 
 # Application definition
 

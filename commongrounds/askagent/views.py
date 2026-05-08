@@ -1,7 +1,9 @@
 import json
 
+from django.http import HttpResponseForbidden
 from django.http import StreamingHttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 
 from .agent import ChatbotError, ask_agentic_chatbot, stream_agentic_chatbot
 
@@ -13,6 +15,15 @@ def ask(request):
     tool_events = []
 
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            error = 'Log in first to chat with Groundie.'
+            return render(request, 'askagent/ask.html', {
+                'question': question,
+                'answer': answer,
+                'error': error,
+                'tool_events': tool_events,
+            }, status=403)
+
         question = request.POST.get('question', '').strip()
         if question:
             try:
@@ -35,11 +46,27 @@ def ask(request):
 
 
 def stream(request):
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            return HttpResponseForbidden(json.dumps({
+                'type': 'auth_required',
+                'message': 'Log in first to chat with Groundie.',
+                'login_url': reverse('login'),
+            }), content_type='application/json')
+
     payload = stream_payload(request)
     question = payload.get('question', '').strip()
     history = payload.get('history', [])
 
     def events():
+        if not request.user.is_authenticated:
+            yield sse_message({
+                'type': 'auth_required',
+                'message': 'Log in first to chat with Groundie.',
+                'login_url': reverse('login'),
+            })
+            return
+
         if not question:
             yield sse_message({
                 'type': 'error',

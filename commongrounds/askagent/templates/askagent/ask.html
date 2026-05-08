@@ -60,10 +60,18 @@
             <div class="markdown-answer mt-3 text-sm leading-7 text-text md:text-base">{{ answer|linebreaksbr }}</div>
           </article>
         {% else %}
-          <article class="rounded-lg border border-dashed border-border bg-surface-low px-4 py-5">
-            <p class="text-sm font-medium text-text">Ask Groundie to look something up.</p>
-            <p class="mt-1 text-xs leading-5 text-text-subtle">Try products for sale, your cart, upcoming events, books, projects, or gigs.</p>
-          </article>
+          {% if request.user.is_authenticated %}
+            <article class="rounded-lg border border-dashed border-border bg-surface-low px-4 py-5">
+              <p class="text-sm font-medium text-text">Ask Groundie to look something up.</p>
+              <p class="mt-1 text-xs leading-5 text-text-subtle">Try products for sale, your cart, upcoming events, books, projects, or gigs.</p>
+            </article>
+          {% else %}
+            <article class="rounded-lg border border-dashed border-border bg-surface-low px-4 py-5">
+              <p class="text-sm font-medium text-text">Log in first to chat with Groundie.</p>
+              <p class="mt-1 text-xs leading-5 text-text-subtle">Groundie can answer questions once you are signed in.</p>
+              <a href="{% url 'login' %}" class="mt-4 inline-flex rounded bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary-hover">Log in</a>
+            </article>
+          {% endif %}
         {% endif %}
       </div>
 
@@ -77,10 +85,11 @@
             rows="3"
             required
             class="max-h-32 min-h-16 flex-1 resize-none rounded border border-border bg-white px-3 py-2 text-sm leading-6 text-text placeholder-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Ask Groundie about your cart, products, events, books, projects, or gigs"
+            placeholder="{% if request.user.is_authenticated %}Ask Groundie about your cart, products, events, books, projects, or gigs{% else %}Log in first to chat with Groundie{% endif %}"
+            {% if not request.user.is_authenticated %}disabled{% endif %}
           >{{ question }}</textarea>
-          <button id="ask-submit" type="submit" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-24">
-            Send
+          <button id="ask-submit" type="submit" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-24" {% if not request.user.is_authenticated %}disabled{% endif %}>
+            {% if request.user.is_authenticated %}Send{% else %}Log in{% endif %}
           </button>
         </div>
       </form>
@@ -96,6 +105,7 @@
   const submit = document.getElementById('ask-submit');
   const conversation = document.getElementById('conversation');
   const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+  const isAuthenticated = "{{ request.user.is_authenticated|yesno:'true,false' }}" === 'true';
   let history = [];
   let controller = null;
 
@@ -341,10 +351,19 @@
       addError(payload.message);
       setLoading(false);
     }
+    if (payload.type === 'auth_required') {
+      addError(payload.message);
+      setLoading(false);
+    }
   }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!isAuthenticated) {
+      addError('Log in first to chat with Groundie.');
+      return;
+    }
+
     const question = input.value.trim();
     if (!question) return;
 
