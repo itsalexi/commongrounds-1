@@ -1,6 +1,6 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
-    "startCommand": "cd commongrounds && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn commongrounds.wsgi"
+    "startCommand": "cd commongrounds && python manage.py migrate --noinput && python manage.py tailwind build && python manage.py collectstatic --noinput && gunicorn commongrounds.wsgi"
   }
 }
