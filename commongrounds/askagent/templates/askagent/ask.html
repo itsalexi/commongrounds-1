@@ -88,9 +88,15 @@
             placeholder="{% if request.user.is_authenticated %}Ask Groundie about your cart, products, events, books, projects, or gigs{% else %}Log in first to chat with Groundie{% endif %}"
             {% if not request.user.is_authenticated %}disabled{% endif %}
           >{{ question }}</textarea>
-          <button id="ask-submit" type="submit" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-24" {% if not request.user.is_authenticated %}disabled{% endif %}>
-            {% if request.user.is_authenticated %}Send{% else %}Log in{% endif %}
-          </button>
+          {% if request.user.is_authenticated %}
+            <button id="ask-submit" type="submit" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-24">
+              Send
+            </button>
+          {% else %}
+            <a id="ask-submit" href="{% url 'login' %}" class="inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px sm:min-w-24">
+              Log in
+            </a>
+          {% endif %}
         </div>
       </form>
     </section>

@@ -50,14 +50,23 @@
           placeholder="{% if request.user.is_authenticated %}Message Groundie{% else %}Log in first{% endif %}"
           {% if not request.user.is_authenticated %}disabled{% endif %}
         ></textarea>
-        <button
-          id="groundie-send"
-          type="submit"
-          class="inline-flex min-h-10 items-center justify-center rounded bg-primary px-4 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
-          {% if not request.user.is_authenticated %}disabled{% endif %}
-        >
-          {% if request.user.is_authenticated %}Send{% else %}Log in{% endif %}
-        </button>
+        {% if request.user.is_authenticated %}
+          <button
+            id="groundie-send"
+            type="submit"
+            class="inline-flex min-h-10 items-center justify-center rounded bg-primary px-4 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Send
+          </button>
+        {% else %}
+          <a
+            id="groundie-send"
+            href="{% url 'login' %}"
+            class="inline-flex min-h-10 items-center justify-center rounded bg-primary px-4 text-sm font-medium text-on-primary transition hover:bg-primary-hover active:translate-y-px"
+          >
+            Log in
+          </a>
+        {% endif %}
       </div>
     </form>
   </section>
